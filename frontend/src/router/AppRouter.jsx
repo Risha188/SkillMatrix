@@ -12,6 +12,10 @@ import PersonalInformation from "../pages/employee/PersonalInformation.jsx";
 import Education from "../pages/employee/Education.jsx";
 import Address from "../pages/employee/Address.jsx";
 import Skills from "../pages/employee/Skills.jsx";
+import WorkExperience from "../pages/employee/WorkExperience.jsx";
+import Declaration from "../pages/employee/Declaration.jsx";
+import BDM from "../pages/employee/BDM.jsx";
+import Dashboard from "../pages/employee/Dashboard.jsx";
 
 const router = createBrowserRouter(
     createRoutesFromElements(
@@ -33,6 +37,11 @@ const router = createBrowserRouter(
                 element={<EmployeeLayout />}
             >
                 <Route
+                    path="dashboard"
+                    element={<Dashboard />}
+                />
+
+                <Route
                     path="personal"
                     element={<PersonalInformation />}
                 />
@@ -51,15 +60,20 @@ const router = createBrowserRouter(
                     path="skills"
                     element={<Skills />}
                 />
-                
+
                 <Route
-                    path="status"
-                    element={<Skills />}
+                    path="experience"
+                    element={<WorkExperience />}
                 />
-                
+
                 <Route
                     path="bdm"
-                    element={<Skills />}
+                    element={<BDM />}
+                />
+
+                <Route
+                    path="declaration"
+                    element={<Declaration />}
                 />
             </Route>
         </>

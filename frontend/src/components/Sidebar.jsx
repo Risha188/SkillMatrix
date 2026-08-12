@@ -1,96 +1,109 @@
 import React from "react";
 import {NavLink} from "react-router-dom";
-import "../index.css";
 
 const Sidebar = () => {
+    const navLinkClass = ({isActive}) =>
+        `flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${isActive
+            ? "bg-blue-600 text-white shadow-md"
+            : "text-white hover:bg-blue-500"
+        }`;
+
     return (
-        <aside className="sidebar">
+        <aside className="fixed left-0 top-0 z-10 h-screen w-64 bg-blue-400 text-white shadow-xl">
 
             {/* Logo */}
-            <div className="sidebar-logo">
-                <div className="sidebar-logo-icon">
-                    S
+            <div className="flex h-20 shrink-0 items-center gap-3 border-b border-blue-400 px-5">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-lg font-bold text-blue-600 shadow-md">
+                    SM
                 </div>
 
                 <div>
-                    <h2>SkillMatrix</h2>
-                    <span>Employee Panel</span>
+                    <h2 className="text-lg font-bold tracking-wide">
+                        SkillMatrix
+                    </h2>
+
+                    <p className="text-xs text-blue-100">
+                        Employee Panel
+                    </p>
                 </div>
             </div>
 
             {/* Navigation */}
-            <div className="sidebar-menu">
+            <nav className="flex-1 overflow-y-auto px-4 py-6">
 
-                <p className="menu-title">
+                <p className="mb-3 px-3 text-xs font-semibold tracking-widest text-blue-100">
                     PROFILE
                 </p>
 
-                <NavLink
-                    to="/employee/personal"
-                    className="sidebar-link"
+                <div className="space-y-2">
+
+                    <NavLink
+                        to="/employee/dashboard"
+                        className={navLinkClass}
+                    >
+                        <span>Dashboard</span>
+                    </NavLink>
+
+                    <NavLink
+                        to="/employee/personal"
+                        className={navLinkClass}
+                    >
+                        <span>Personal Information</span>
+                    </NavLink>
+
+                    <NavLink
+                        to="/employee/education"
+                        className={navLinkClass}
+                    >
+                        <span>Education</span>
+                    </NavLink>
+
+                    <NavLink
+                        to="/employee/address"
+                        className={navLinkClass}
+                    >
+                        <span>Address</span>
+                    </NavLink>
+
+                    <NavLink
+                        to="/employee/skills"
+                        className={navLinkClass}
+                    >
+                        <span>Skills</span>
+                    </NavLink>
+
+                    <NavLink
+                        to="/employee/experience"
+                        className={navLinkClass}
+                    >
+                        <span>Work Experience</span>
+                    </NavLink>
+
+                    <NavLink
+                        to="/employee/bdm"
+                        className={navLinkClass}
+                    >
+                        <span>BDM Details</span>
+                    </NavLink>
+
+                    <NavLink
+                        to="/employee/declaration"
+                        className={navLinkClass}
+                    >
+                        <span>Declaration</span>
+                    </NavLink>
+
+                </div>
+            </nav>
+
+            {/* Logout */}
+            <div className="shrink-0 border-t border-blue-400 p-4">
+                <button
+                    type="button"
+                    className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
                 >
-                    <span>👤</span>
-                    Personal Information
-                </NavLink>
-
-                <NavLink
-                    to="/employee/education"
-                    className="sidebar-link"
-                >
-                    <span>🎓</span>
-                    Education
-                </NavLink>
-
-                <NavLink
-                    to="/employee/address"
-                    className="sidebar-link"
-                >
-                    <span>📍</span>
-                    Address
-                </NavLink>
-
-                <NavLink
-                    to="/employee/skills"
-                    className="sidebar-link"
-                >
-                    <span>💡</span>
-                    Skills
-                </NavLink>
-
-                <NavLink
-                    to="/employee/status"
-                    className="sidebar-link"
-                >
-                    <span>📊</span>
-                    Present Status
-                </NavLink>
-
-                <NavLink
-                    to="/employee/bdm"
-                    className="sidebar-link"
-                >
-                    <span>👔</span>
-                    BDM Details
-                </NavLink>
-
-            </div>
-
-            {/* Bottom */}
-            <div className="sidebar-bottom">
-
-                <NavLink
-                    to="/"
-                    className="sidebar-link"
-                >
-                    <span>🏠</span>
-                    Dashboard
-                </NavLink>
-
-                <button className="logout-btn">
-                    <span>🚪</span>
-                    Logout
+                    <span>Logout</span>
                 </button>
-
             </div>
 
         </aside>
@@ -98,4 +111,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-

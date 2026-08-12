@@ -1,18 +1,22 @@
 import {Outlet} from "react-router-dom";
-import Navbar from '../components/Navbar.jsx';
-import Footer from "../components/Footer.jsx";
-import '../index.css';
+import Sidebar from "../components/Sidebar.jsx";
 
 const MainLayout = () => {
     return (
-        <div className="main-layout">
-            <Navbar />
-            <main className="main-content">
-                <Outlet />
-            </main>
-            <Footer />
-        </div>
-    )
-}
+        <div className="relative min-h-screen bg-gray-50">
 
-export default MainLayout
+            {/* Sidebar */}
+            <Sidebar />
+
+            {/* Employee Pages */}
+            <main className="ml-64 min-h-screen p-6">
+                <div className="mx-auto w-full max-w-7xl">
+                    <Outlet />
+                </div>
+            </main>
+
+        </div>
+    );
+};
+
+export default MainLayout;

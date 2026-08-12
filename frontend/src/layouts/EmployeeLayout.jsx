@@ -1,21 +1,19 @@
 import {Outlet} from "react-router-dom";
 import Sidebar from "../components/Sidebar.jsx";
 
-import "../index.css";
-
 const EmployeeLayout = () => {
     return (
-        <div className="employee-layout">
+        <div className="relative min-h-screen bg-gray-50">
 
+            {/* Sidebar */}
             <Sidebar />
 
-            <div className="employee-content">
-
-                <main className="employee-main-content">
+            {/* Employee Content */}
+            <main className="ml-64 min-h-screen p-6">
+                <div className="mx-auto w-full max-w-7xl">
                     <Outlet />
-                </main>
-
-            </div>
+                </div>
+            </main>
 
         </div>
     );
