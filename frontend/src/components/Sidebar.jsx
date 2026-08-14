@@ -4,12 +4,12 @@ import {NavLink} from "react-router-dom";
 const Sidebar = () => {
     const navLinkClass = ({isActive}) =>
         `flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${isActive
-            ? "bg-blue-600 text-white shadow-md"
-            : "text-white hover:bg-blue-500"
+            ? "bg-blue-100 text-blue-500 shadow-md"
+            : "text-white hover:bg-blue-200 hover:text-blue-500"
         }`;
 
     return (
-        <aside className="fixed left-0 top-0 z-10 h-screen w-64 bg-blue-400 text-white shadow-xl">
+        <aside className="fixed left-0 top-0 z-10 h-screen w-64 bg-sky-600 text-white shadow-xl">
 
             {/* Logo */}
             <div className="flex h-20 shrink-0 items-center gap-3 border-b border-blue-400 px-5">
@@ -100,7 +100,7 @@ const Sidebar = () => {
             <div className="shrink-0 border-t border-blue-400 p-4">
                 <button
                     type="button"
-                    className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
+                    className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-white transition hover:bg-blue-200 hover:text-blue-600"
                 >
                     <span>Logout</span>
                 </button>

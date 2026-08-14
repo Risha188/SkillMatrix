@@ -4,10 +4,19 @@ import {PROFILE_SECTIONS,getCompletedSections} from "../../utils/profileProgress
 
 const Dashboard = () => {
     const [completedSections,setCompletedSections] = useState([]);
+    const [employeeName, setEmployeName] = useState("Employee");
 
     useEffect(() => {
         const completed = getCompletedSections();
+
         setCompletedSections(completed);
+
+        const employeeData = JSON.parse(localStorage.getItem("employeePersonalInfo"));
+
+        if(employeeData){
+            const fullName = `${employeeData.firstName || ""} ${employeeData.lastName || ""}`.trim();
+            setEmployeName(fullName || "Employee");
+        }
     },[]);
 
 
@@ -44,13 +53,13 @@ const Dashboard = () => {
                 </div>
 
                 {/* Welcome Card */}
-                <div className="mb-6 rounded-xl bg-blue-500 p-6 text-white shadow-md">
+                <div className="mb-6 rounded-xl bg-sky-600 p-6 text-white shadow-md">
 
                     <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
 
                         <div>
                             <h2 className="text-2xl font-bold">
-                                Welcome, Parna Das 👋
+                                Welcome, {employeeName}
                             </h2>
 
                             <p className="mt-2 text-sm text-blue-100">
@@ -79,7 +88,7 @@ const Dashboard = () => {
                             </p>
                         </div>
 
-                        <span className="text-xl font-bold text-blue-600">
+                        <span className="text-xl font-bold text-sky-600">
                             {completionPercentage}%
                         </span>
 
@@ -89,7 +98,7 @@ const Dashboard = () => {
                     <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
 
                         <div
-                            className="h-full rounded-full bg-blue-600 transition-all duration-500"
+                            className="h-full rounded-full bg-sky-600 transition-all duration-500"
                             style={{
                                 width: `${completionPercentage}%`,
                             }}
@@ -232,7 +241,7 @@ const Dashboard = () => {
                                         to={section.path}
                                         className={`rounded-lg px-4 py-2 text-sm font-medium transition ${isCompleted
                                             ? "border border-gray-300 text-gray-600 hover:bg-gray-100"
-                                            : "bg-blue-600 text-white hover:bg-blue-700"
+                                            : "bg-sky-600 text-white hover:bg-sky-700"
                                             }`}
                                     >
                                         {isCompleted ? "Edit" : "Complete"}

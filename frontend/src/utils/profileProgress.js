@@ -48,5 +48,4 @@ export const markSectionCompleted = (sectionKey)=>{
     }
     
     localStorage.setItem("completedProfileSections",JSON.stringify(completedSections));
-    localStorage.removeItem("completedProfileSections");
 }

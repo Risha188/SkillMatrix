@@ -96,10 +96,6 @@ const BDM = () => {
 
                     <div className="flex items-center gap-3">
 
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-100 text-xl">
-                            👔
-                        </div>
-
                         <div>
                             <h2 className="text-2xl font-bold text-gray-800">
                                 BDM Details

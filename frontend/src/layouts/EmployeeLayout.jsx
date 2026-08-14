@@ -1,16 +1,16 @@
-import {Outlet} from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar.jsx";
 
 const EmployeeLayout = () => {
     return (
-        <div className="relative min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50">
 
             {/* Sidebar */}
             <Sidebar />
 
             {/* Employee Content */}
-            <main className="ml-64 min-h-screen p-6">
-                <div className="mx-auto w-full max-w-7xl">
+            <main className="min-h-screen pl-64">
+                <div className="w-full p-6">
                     <Outlet />
                 </div>
             </main>
