@@ -2,6 +2,10 @@ const express = require("express");
 
 console.log("Employee routes loaded");
 
+// ==========================================
+// Employee Controller
+// ==========================================
+
 const {
     createEmployee,
     getEmployee,
@@ -12,20 +16,116 @@ const {
     updateBDMDetails
 } = require("../controllers/employeecontroller");
 
+// ==========================================
+// Authentication Middleware
+// ==========================================
+
+const {
+    protect,
+    employeeOnly
+} = require("../middleware/authMiddleware");
+
+
+// ==========================================
+// CREATE ROUTER
+// ==========================================
+
 const router = express.Router();
 
-router.post("/", createEmployee);
 
-router.put("/:employeeId/education", updateEducation);
+// ==========================================
+// CREATE EMPLOYEE
+// POST /api/employees
+// ==========================================
 
-router.put("/:employeeId/address", updateAddress);
+router.post(
+    "/",
+    protect,
+    employeeOnly,
+    createEmployee
+);
 
-router.put("/:employeeId/skills", updateSkills);
 
-router.put("/:employeeId/work-experience", updateWorkExperience);
+// ==========================================
+// UPDATE EDUCATION
+// PUT /api/employees/:employeeId/education
+// ==========================================
 
-router.put("/:employeeId/bdm", updateBDMDetails);
+router.put(
+    "/:employeeId/education",
+    protect,
+    employeeOnly,
+    updateEducation
+);
 
-router.get("/:employeeId", getEmployee);
+
+// ==========================================
+// UPDATE ADDRESS
+// PUT /api/employees/:employeeId/address
+// ==========================================
+
+router.put(
+    "/:employeeId/address",
+    protect,
+    employeeOnly,
+    updateAddress
+);
+
+
+// ==========================================
+// UPDATE SKILLS
+// PUT /api/employees/:employeeId/skills
+// ==========================================
+
+router.put(
+    "/:employeeId/skills",
+    protect,
+    employeeOnly,
+    updateSkills
+);
+
+
+// ==========================================
+// UPDATE WORK EXPERIENCE
+// PUT /api/employees/:employeeId/work-experience
+// ==========================================
+
+router.put(
+    "/:employeeId/work-experience",
+    protect,
+    employeeOnly,
+    updateWorkExperience
+);
+
+
+// ==========================================
+// UPDATE BDM DETAILS
+// PUT /api/employees/:employeeId/bdm
+// ==========================================
+
+router.put(
+    "/:employeeId/bdm",
+    protect,
+    employeeOnly,
+    updateBDMDetails
+);
+
+
+// ==========================================
+// GET EMPLOYEE
+// GET /api/employees/:employeeId
+// ==========================================
+
+router.get(
+    "/:employeeId",
+    protect,
+    employeeOnly,
+    getEmployee
+);
+
+
+// ==========================================
+// EXPORT ROUTER
+// ==========================================
 
 module.exports = router;

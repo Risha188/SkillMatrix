@@ -16,6 +16,10 @@ const employeeSchema = new mongoose.Schema(
             trim: true
         },
 
+        // ==============================
+        // Personal Information
+        // ==============================
+
         personalDetails: {
             firstName: String,
             lastName: String,
@@ -24,6 +28,10 @@ const employeeSchema = new mongoose.Schema(
             dateOfBirth: Date,
             gender: String
         },
+
+        // ==============================
+        // Education
+        // ==============================
 
         education: [
             {
@@ -37,6 +45,10 @@ const employeeSchema = new mongoose.Schema(
                 cgpa: Number
             }
         ],
+
+        // ==============================
+        // Address
+        // ==============================
 
         address: {
             current: {
@@ -61,6 +73,10 @@ const employeeSchema = new mongoose.Schema(
             }
         },
 
+        // ==============================
+        // Skills
+        // ==============================
+
         skills: [
             {
                 skill: String,
@@ -70,23 +86,35 @@ const employeeSchema = new mongoose.Schema(
             }
         ],
 
-       isFresher: {
-    type: Boolean,
-    default: false
-},
+        // ==============================
+        // Fresher Status
+        // ==============================
 
-workExperience: [
-    {
-        companyName: String,
-        jobTitle: String,
-        employmentType: String,
-        workLocation: String,
-        startDate: Date,
-        endDate: Date,
-        currentlyWorking: Boolean,
-        jobDescription: String
-    }
-],
+        isFresher: {
+            type: Boolean,
+            default: false
+        },
+
+        // ==============================
+        // Work Experience
+        // ==============================
+
+        workExperience: [
+            {
+                companyName: String,
+                jobTitle: String,
+                employmentType: String,
+                workLocation: String,
+                startDate: Date,
+                endDate: Date,
+                currentlyWorking: Boolean,
+                jobDescription: String
+            }
+        ],
+
+        // ==============================
+        // BDM Details
+        // ==============================
 
         bdmDetails: {
             nonTechnicalSkills: [String],
@@ -97,14 +125,9 @@ workExperience: [
             additionalInformation: String
         },
 
-        declaration: {
-            accepted: {
-                type: Boolean,
-                default: false
-            },
-
-            submittedAt: Date
-        },
+        // ==============================
+        // Profile Completion
+        // ==============================
 
         profileCompleted: {
             type: Boolean,

@@ -1,4 +1,3 @@
-
 import {
     createBrowserRouter,
     Route,
@@ -6,79 +5,245 @@ import {
     Navigate,
 } from "react-router-dom";
 
+// ========================================
+// Authentication Pages
+// ========================================
+
+import Login from "../pages/auth/login.jsx";
+import Registration from "../pages/auth/registration.jsx";
+import ForgotPassword from "../pages/auth/ForgotPassword.jsx";
+import VerifyEmail from "../pages/auth/VerifyEmail.jsx";
+import SetPassword from "../pages/auth/SetPassword.jsx";
+import VerifyResetCode from "../pages/auth/VerifyResetCode.jsx";
+import ResetPassword from "../pages/auth/ResetPassword.jsx";
+
+// ========================================
+// Admin
+// ========================================
+
+import AdminLogin from "../pages/admin/adminLogin.jsx";
+
+// ========================================
+// Protected Route
+// IMPORTANT:
+// Keep only ONE ProtectedRoute.
+// This one is inside /router.
+// ========================================
+
+import ProtectedRoute from "./ProtectedRoute.jsx";
+
+// ========================================
+// Employee Layout
+// ========================================
+
 import EmployeeLayout from "../layouts/EmployeeLayout.jsx";
+
+// ========================================
+// Employee Pages
+// ========================================
 
 import PersonalInformation from "../pages/employee/PersonalInformation.jsx";
 import Education from "../pages/employee/Education.jsx";
 import Address from "../pages/employee/Address.jsx";
 import Skills from "../pages/employee/Skills.jsx";
 import WorkExperience from "../pages/employee/WorkExperience.jsx";
-import Declaration from "../pages/employee/Declaration.jsx";
 import BDM from "../pages/employee/BDM.jsx";
 import Dashboard from "../pages/employee/Dashboard.jsx";
+
+// ========================================
+// ROUTER
+// ========================================
 
 const router = createBrowserRouter(
     createRoutesFromElements(
         <>
-            {/* Default Route */}
+
+            {/* ======================================== */}
+            {/* ROOT */}
+            {/* ======================================== */}
+
             <Route
                 path="/"
                 element={
                     <Navigate
-                        to="/employee/personal"
+                        to="/login"
                         replace
                     />
                 }
             />
 
-            {/* Employee Panel */}
+
+            {/* ======================================== */}
+            {/* AUTHENTICATION */}
+            {/* ======================================== */}
+
+            {/* Login */}
+
             <Route
-                path="/employee"
-                element={<EmployeeLayout />}
-            >
-                <Route
-                    path="dashboard"
-                    element={<Dashboard />}
-                />
+                path="/login"
+                element={<Login />}
+            />
+
+
+            {/* Employee Registration */}
+
+            <Route
+                path="/registration"
+                element={<Registration />}
+            />
+
+
+            {/* Forgot Password */}
+
+            <Route
+                path="/forgot-password"
+                element={<ForgotPassword />}
+            />
+
+
+            {/* Verify Reset Code */}
+
+            <Route
+                path="/verify-reset-code"
+                element={<VerifyResetCode />}
+            />
+
+
+            {/* Reset Password */}
+
+            <Route
+                path="/reset-password"
+                element={<ResetPassword />}
+            />
+
+
+            {/* Verify Employee Email */}
+
+            <Route
+                path="/verify-email"
+                element={<VerifyEmail />}
+            />
+
+
+            {/* Set Password */}
+
+            <Route
+                path="/set-password"
+                element={<SetPassword />}
+            />
+
+
+            {/* ======================================== */}
+            {/* ADMIN LOGIN */}
+            {/* ======================================== */}
+
+            <Route
+                path="/admin"
+                element={<AdminLogin />}
+            />
+
+
+            {/* ======================================== */}
+            {/* PROTECTED EMPLOYEE ROUTES */}
+            {/* ======================================== */}
+
+            <Route element={<ProtectedRoute />}>
 
                 <Route
-                    path="personal"
-                    element={<PersonalInformation />}
-                />
+                    path="/employee"
+                    element={<EmployeeLayout />}
+                >
 
-                <Route
-                    path="education"
-                    element={<Education />}
-                />
+                    {/* ======================================== */}
+                    {/* EMPLOYEE DASHBOARD */}
+                    {/* ======================================== */}
 
-                <Route
-                    path="address"
-                    element={<Address />}
-                />
+                    <Route
+                        path="dashboard"
+                        element={<Dashboard />}
+                    />
 
-                <Route
-                    path="skills"
-                    element={<Skills />}
-                />
 
-                <Route
-                    path="experience"
-                    element={<WorkExperience />}
-                />
+                    {/* ======================================== */}
+                    {/* PERSONAL INFORMATION */}
+                    {/* ======================================== */}
 
-                <Route
-                    path="bdm"
-                    element={<BDM />}
-                />
+                    <Route
+                        path="personal"
+                        element={<PersonalInformation />}
+                    />
 
-                <Route
-                    path="declaration"
-                    element={<Declaration />}
-                />
+
+                    {/* ======================================== */}
+                    {/* EDUCATION */}
+                    {/* ======================================== */}
+
+                    <Route
+                        path="education"
+                        element={<Education />}
+                    />
+
+
+                    {/* ======================================== */}
+                    {/* ADDRESS */}
+                    {/* ======================================== */}
+
+                    <Route
+                        path="address"
+                        element={<Address />}
+                    />
+
+
+                    {/* ======================================== */}
+                    {/* SKILLS */}
+                    {/* ======================================== */}
+
+                    <Route
+                        path="skills"
+                        element={<Skills />}
+                    />
+
+
+                    {/* ======================================== */}
+                    {/* WORK EXPERIENCE */}
+                    {/* ======================================== */}
+
+                    <Route
+                        path="experience"
+                        element={<WorkExperience />}
+                    />
+
+
+                    {/* ======================================== */}
+                    {/* BDM */}
+                    {/* ======================================== */}
+
+                    <Route
+                        path="bdm"
+                        element={<BDM />}
+                    />
+
+                </Route>
+
             </Route>
+
+
+            {/* ======================================== */}
+            {/* UNKNOWN URL */}
+            {/* ======================================== */}
+
+            <Route
+                path="*"
+                element={
+                    <Navigate
+                        to="/login"
+                        replace
+                    />
+                }
+            />
+
         </>
     )
 );
 
 export default router;
-

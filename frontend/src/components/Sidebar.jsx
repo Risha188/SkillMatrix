@@ -1,7 +1,13 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
+    const navigate = useNavigate();
+
+    // ==========================================
+    // NAVIGATION STYLE
+    // ==========================================
+
     const navLinkClass = ({ isActive }) =>
         `flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-200 ${
             isActive
@@ -9,12 +15,33 @@ const Sidebar = () => {
                 : "text-white hover:bg-blue-500"
         }`;
 
+    // ==========================================
+    // LOGOUT
+    // ==========================================
+
+    const handleLogout = () => {
+        // Remove all authentication information
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("employeeId");
+        localStorage.removeItem("isAuthenticated");
+
+        // Go to login and replace the current history entry
+        navigate("/login", {
+            replace: true
+        });
+    };
+
     return (
         <aside className="fixed left-0 top-0 z-10 flex h-screen w-64 flex-col bg-blue-400 text-white shadow-xl">
 
             {/* =========================
                 LOGO
             ========================= */}
+
             <div className="flex h-20 shrink-0 items-center gap-3 border-b border-blue-300 px-5">
 
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-lg font-bold text-blue-600 shadow-md">
@@ -33,9 +60,11 @@ const Sidebar = () => {
 
             </div>
 
+
             {/* =========================
                 NAVIGATION
             ========================= */}
+
             <nav className="flex-1 overflow-y-auto px-4 py-6">
 
                 <p className="mb-3 px-3 text-xs font-semibold tracking-widest text-blue-100">
@@ -44,12 +73,17 @@ const Sidebar = () => {
 
                 <div className="space-y-2">
 
+                    {/* Dashboard */}
+
                     <NavLink
                         to="/employee/dashboard"
                         className={navLinkClass}
                     >
                         <span>Dashboard</span>
                     </NavLink>
+
+
+                    {/* Personal Information */}
 
                     <NavLink
                         to="/employee/personal"
@@ -58,12 +92,18 @@ const Sidebar = () => {
                         <span>Personal Information</span>
                     </NavLink>
 
+
+                    {/* Education */}
+
                     <NavLink
                         to="/employee/education"
                         className={navLinkClass}
                     >
                         <span>Education</span>
                     </NavLink>
+
+
+                    {/* Address */}
 
                     <NavLink
                         to="/employee/address"
@@ -72,12 +112,18 @@ const Sidebar = () => {
                         <span>Address</span>
                     </NavLink>
 
+
+                    {/* Skills */}
+
                     <NavLink
                         to="/employee/skills"
                         className={navLinkClass}
                     >
                         <span>Skills</span>
                     </NavLink>
+
+
+                    {/* Work Experience */}
 
                     <NavLink
                         to="/employee/experience"
@@ -86,6 +132,9 @@ const Sidebar = () => {
                         <span>Work Experience</span>
                     </NavLink>
 
+
+                    {/* BDM Details */}
+
                     <NavLink
                         to="/employee/bdm"
                         className={navLinkClass}
@@ -93,24 +142,20 @@ const Sidebar = () => {
                         <span>BDM Details</span>
                     </NavLink>
 
-                    <NavLink
-                        to="/employee/declaration"
-                        className={navLinkClass}
-                    >
-                        <span>Declaration</span>
-                    </NavLink>
-
                 </div>
 
             </nav>
 
+
             {/* =========================
                 LOGOUT
             ========================= */}
+
             <div className="shrink-0 border-t border-blue-300 p-4">
 
                 <button
                     type="button"
+                    onClick={handleLogout}
                     className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
                 >
                     <span>Logout</span>

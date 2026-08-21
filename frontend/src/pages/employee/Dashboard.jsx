@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+
 import {
     PROFILE_SECTIONS,
     getCompletedSections
@@ -7,42 +8,83 @@ import {
 
 const Dashboard = () => {
 
+    // ==========================================
+    // LOGGED-IN USER
+    // ==========================================
+
+    const user = JSON.parse(
+        localStorage.getItem("user") || "{}"
+    );
+
+    const fullName = user.fullName || "Employee";
+
+    const firstName =
+        fullName.trim().split(/\s+/)[0] || "Employee";
+
+
+    // ==========================================
+    // PROFILE PROGRESS
+    // ==========================================
+
     const [completedSections, setCompletedSections] = useState([]);
 
-    // Load completed sections
-    const loadProgress = () => {
-        const completed = getCompletedSections();
-        setCompletedSections(completed);
-    };
+
+    // ==========================================
+    // LOAD COMPLETED SECTIONS
+    // ==========================================
 
     useEffect(() => {
 
+        const loadProgress = () => {
+
+            const completed = getCompletedSections();
+
+            setCompletedSections(completed);
+        };
+
+
         loadProgress();
 
-        // Update dashboard when another page completes a section
+
+        // Update dashboard when another page
+        // completes a profile section
+
         window.addEventListener(
             "profileProgressUpdated",
             loadProgress
         );
 
+
         return () => {
+
             window.removeEventListener(
                 "profileProgressUpdated",
                 loadProgress
             );
+
         };
 
     }, []);
 
-    const completedCount = PROFILE_SECTIONS.filter(
-        (section) =>
-            completedSections.includes(section.key)
-    ).length;
 
-    const totalSections = PROFILE_SECTIONS.length;
+    // ==========================================
+    // PROFILE CALCULATIONS
+    // ==========================================
+
+    const completedCount =
+        PROFILE_SECTIONS.filter(
+            (section) =>
+                completedSections.includes(section.key)
+        ).length;
+
+
+    const totalSections =
+        PROFILE_SECTIONS.length;
+
 
     const remainingCount =
         totalSections - completedCount;
+
 
     const completionPercentage =
         totalSections === 0
@@ -51,12 +93,21 @@ const Dashboard = () => {
                 (completedCount / totalSections) * 100
             );
 
+
+    // ==========================================
+    // PAGE
+    // ==========================================
+
     return (
         <div className="min-h-screen bg-gray-50 px-6 py-8">
 
             <div className="mx-auto max-w-6xl">
 
-                {/* Header */}
+
+                {/* ==========================================
+                    HEADER
+                ========================================== */}
+
                 <div className="mb-8">
 
                     <h1 className="text-3xl font-bold text-gray-800">
@@ -70,21 +121,37 @@ const Dashboard = () => {
 
                 </div>
 
-                {/* Welcome */}
+
+                {/* ==========================================
+                    WELCOME CARD
+                ========================================== */}
+
                 <div className="mb-6 rounded-xl bg-blue-500 p-6 text-white shadow-md">
 
-                    <h2 className="text-2xl font-bold">
-                        Welcome, Parna Das 👋
-                    </h2>
+                    <div className="flex flex-col justify-between gap-5 md:flex-row md:items-center">
 
-                    <p className="mt-2 text-sm text-blue-100">
-                        Complete your employee profile to make sure
-                        all your information is available.
-                    </p>
+                        <div>
+
+                            <h2 className="text-2xl font-bold">
+                                Welcome, {firstName} 👋
+                            </h2>
+
+                            <p className="mt-2 text-sm text-blue-100">
+                                Complete your employee profile to make sure
+                                all your information is available.
+                            </p>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
-                {/* Profile Completion */}
+
+                {/* ==========================================
+                    PROFILE COMPLETION
+                ========================================== */}
+
                 <div className="mb-6 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
 
                     <div className="mb-4 flex items-center justify-between">
@@ -101,17 +168,19 @@ const Dashboard = () => {
 
                         </div>
 
-                        <span className="text-xl font-bold text-blue-600">
+                        <span className="text-xl font-bold text-sky-600">
                             {completionPercentage}%
                         </span>
 
                     </div>
 
+
                     {/* Dynamic Progress Bar */}
+
                     <div className="h-3 w-full overflow-hidden rounded-full bg-gray-200">
 
                         <div
-                            className="h-full rounded-full bg-blue-600 transition-all duration-700 ease-out"
+                            className="h-full rounded-full bg-blue-600 transition-all duration-500"
                             style={{
                                 width: `${completionPercentage}%`
                             }}
@@ -119,23 +188,30 @@ const Dashboard = () => {
 
                     </div>
 
+
                     <p className="mt-3 text-sm text-gray-500">
 
                         {completionPercentage === 100
                             ? "Your profile is complete! 🎉"
-                            : `You have ${remainingCount} section${
-                                remainingCount !== 1 ? "s" : ""
-                              } remaining.`
+                            : `You have ${remainingCount} section${remainingCount !== 1 ? "s" : ""} remaining.`
                         }
 
                     </p>
 
                 </div>
 
-                {/* Statistics */}
+
+                {/* ==========================================
+                    STATISTICS
+                ========================================== */}
+
                 <div className="mb-6 grid grid-cols-1 gap-5 md:grid-cols-3">
 
-                    {/* Completed */}
+
+                    {/* ======================================
+                        COMPLETED
+                    ====================================== */}
+
                     <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
 
                         <div className="flex items-center gap-4">
@@ -160,7 +236,11 @@ const Dashboard = () => {
 
                     </div>
 
-                    {/* Remaining */}
+
+                    {/* ======================================
+                        REMAINING
+                    ====================================== */}
+
                     <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
 
                         <div className="flex items-center gap-4">
@@ -185,7 +265,11 @@ const Dashboard = () => {
 
                     </div>
 
-                    {/* Completion */}
+
+                    {/* ======================================
+                        COMPLETION
+                    ====================================== */}
+
                     <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
 
                         <div className="flex items-center gap-4">
@@ -212,8 +296,15 @@ const Dashboard = () => {
 
                 </div>
 
-                {/* Profile Sections */}
+
+                {/* ==========================================
+                    PROFILE SECTIONS
+                ========================================== */}
+
                 <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+
+
+                    {/* Section Header */}
 
                     <div className="border-b border-gray-200 px-6 py-5">
 
@@ -227,12 +318,18 @@ const Dashboard = () => {
 
                     </div>
 
+
+                    {/* Section List */}
+
                     <div className="divide-y divide-gray-100">
 
                         {PROFILE_SECTIONS.map((section) => {
 
                             const isCompleted =
-                                completedSections.includes(section.key);
+                                completedSections.includes(
+                                    section.key
+                                );
+
 
                             return (
 
@@ -241,9 +338,14 @@ const Dashboard = () => {
                                     className="flex items-center justify-between px-6 py-4 transition hover:bg-gray-50"
                                 >
 
+
+                                    {/* Section Information */}
+
                                     <div className="flex items-center gap-4">
 
+
                                         {/* Status Icon */}
+
                                         <div
                                             className={`flex h-10 w-10 items-center justify-center rounded-full ${
                                                 isCompleted
@@ -251,8 +353,14 @@ const Dashboard = () => {
                                                     : "bg-gray-100 text-gray-400"
                                             }`}
                                         >
-                                            {isCompleted ? "✓" : "○"}
+                                            {isCompleted
+                                                ? "✓"
+                                                : "○"
+                                            }
                                         </div>
+
+
+                                        {/* Section Name */}
 
                                         <div>
 
@@ -277,7 +385,9 @@ const Dashboard = () => {
 
                                     </div>
 
+
                                     {/* Complete / Edit */}
+
                                     <NavLink
                                         to={section.path}
                                         className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
