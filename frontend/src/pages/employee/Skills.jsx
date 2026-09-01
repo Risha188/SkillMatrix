@@ -221,9 +221,8 @@ const Skills = () => {
 
         try {
             const employeeId =
-                localStorage.getItem(
-                    "employeeId"
-                );
+                
+    sessionStorage.getItem("employeeId");
 
             if (!employeeId) {
                 alert(
@@ -281,20 +280,20 @@ const Skills = () => {
     };
 
     const inputClass =
-        "w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+        "w-full min-w-0 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
     const errorInputClass =
-        "w-full rounded-lg border border-red-500 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100";
+        "w-full min-w-0 rounded-lg border border-red-500 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100";
 
     return (
-        <div className="min-h-screen bg-gray-50 px-6 py-8">
+        <div className="min-h-screen w-full overflow-x-hidden bg-gray-50 px-3 py-5 sm:px-4 sm:py-6 md:px-6 md:py-8">
 
-            <div className="mx-auto max-w-5xl">
+            <div className="mx-auto w-full max-w-5xl">
 
                 {/* Header */}
                 <div className="mb-8">
 
-                    <h2 className="text-2xl font-bold text-gray-800">
+                    <h2 className="text-xl font-bold text-gray-800 sm:text-2xl">
                         Skills
                     </h2>
 
@@ -307,14 +306,14 @@ const Skills = () => {
                 <form onSubmit={handleSubmit}>
 
                     {/* Technical Skills */}
-                    <div className="rounded-xl bg-white p-6 shadow-md">
+                    <div className="w-full rounded-xl bg-white p-4 shadow-md sm:p-6">
 
                         {/* Section Header */}
                         <div className="mb-6 flex flex-col justify-between gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-center">
 
                             <div>
 
-                                <h3 className="text-lg font-semibold text-gray-800">
+                                <h3 className="text-base font-semibold text-gray-800 sm:text-lg">
                                     Technical Skills
                                 </h3>
 
@@ -344,11 +343,11 @@ const Skills = () => {
 
                                     <div
                                         key={index}
-                                        className="rounded-xl border border-gray-200 bg-gray-50 p-5"
+                                        className="w-full rounded-xl border border-gray-200 bg-gray-50 p-4 sm:p-5"
                                     >
 
                                         {/* Card Header */}
-                                        <div className="mb-5 flex items-center justify-between border-b border-gray-200 pb-4">
+                                        <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200 pb-4">
 
                                             <h4 className="text-base font-semibold text-gray-800">
                                                 Skill {index + 1}
@@ -371,7 +370,7 @@ const Skills = () => {
                                         </div>
 
                                         {/* Fields */}
-                                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                                        <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 md:gap-6">
 
                                             {/* ================= SKILL ================= */}
                                             <div>
@@ -635,7 +634,7 @@ const Skills = () => {
                     {/* Primary Skills */}
                     <div className="mt-6 rounded-xl border border-blue-100 bg-blue-50 p-6">
 
-                        <h3 className="text-lg font-semibold text-gray-800">
+                        <h3 className="text-base font-semibold text-gray-800 sm:text-lg">
                             Primary Skills
                         </h3>
 
@@ -667,11 +666,11 @@ const Skills = () => {
                     </div>
 
                     {/* Save Button */}
-                    <div className="mt-6 flex justify-end border-t border-gray-200 pt-6">
+                    <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end border-t border-gray-200 pt-6">
 
                         <button
                             type="submit"
-                            className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            className="w-full rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white sm:w-auto shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                         >
                             Save & Next
                         </button>

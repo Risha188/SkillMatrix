@@ -2,17 +2,22 @@ const express = require("express");
 
 const router = express.Router();
 
-// ==========================================
-// ADMIN ROUTES
-// ==========================================
-//
-// Admin self-registration is intentionally removed.
-//
-// Admin #1 will later be able to:
-// 1. Grant admin permission
-// 2. Create a PendingAdmin request
-// 3. Approve Admin #2
-//
-// ==========================================
+const {
+    protect,
+    adminOnly
+} = require("../middleware/authMiddleware");
+
+const {
+    getAdminDashboard
+} = require("../controllers/dashboardController");
+
+
+router.get(
+    "/dashboard",
+    protect,
+    adminOnly,
+    getAdminDashboard
+);
+
 
 module.exports = router;

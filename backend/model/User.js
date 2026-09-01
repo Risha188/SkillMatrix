@@ -2,16 +2,10 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
     {
-        // ==============================
-        // BASIC USER INFORMATION
-        // ==============================
-
         fullName: {
             type: String,
             required: true,
-            trim: true,
-            minlength: 2,
-            maxlength: 100
+            trim: true
         },
 
         email: {
@@ -22,77 +16,38 @@ const userSchema = new mongoose.Schema(
             trim: true
         },
 
-        // ==============================
-        // PASSWORD
-        // ==============================
-
-        // Password will be added after
-        // email verification.
         password: {
             type: String,
-            required: false
+            default: null
         },
-
-        // ==============================
-        // ROLE
-        // ==============================
 
         role: {
             type: String,
-            enum: ["employee", "admin"],
+            enum: ["admin", "employee"],
             default: "employee"
         },
-
-        // ==============================
-        // ACCOUNT STATUS
-        // ==============================
 
         isActive: {
             type: Boolean,
             default: true
         },
 
-        // ==============================
-        // EMAIL VERIFICATION
-        // ==============================
-
         isEmailVerified: {
             type: Boolean,
             default: false
         },
 
-        verificationCode: {
-            type: String,
-            default: null
-        },
+        verificationCode: String,
+        verificationCodeExpires: Date,
 
-        verificationCodeExpires: {
-            type: Date,
-            default: null
-        },
-
-        // ==============================
-        // PASSWORD RESET
-        // ==============================
-
-        resetPasswordCode: {
-            type: String,
-            default: null
-        },
-
-        resetPasswordExpires: {
-            type: Date,
-            default: null
-        },
-
-        resetPasswordVerified: {
-            type: Boolean,
-            default: false
-        }
+        resetCode: String,
+        resetCodeExpires: Date
     },
     {
         timestamps: true
     }
 );
 
-module.exports = mongoose.model("User", userSchema);
+module.exports =
+    mongoose.models.User ||
+    mongoose.model("User", userSchema);

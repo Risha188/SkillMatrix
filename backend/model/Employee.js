@@ -2,10 +2,18 @@ const mongoose = require("mongoose");
 
 const employeeSchema = new mongoose.Schema(
     {
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
+            unique: true
+        },
+
         employeeId: {
             type: String,
             unique: true,
-            required: true
+            required: true,
+            trim: true
         },
 
         email: {
@@ -16,10 +24,6 @@ const employeeSchema = new mongoose.Schema(
             trim: true
         },
 
-        // ==============================
-        // Personal Information
-        // ==============================
-
         personalDetails: {
             firstName: String,
             lastName: String,
@@ -28,10 +32,6 @@ const employeeSchema = new mongoose.Schema(
             dateOfBirth: Date,
             gender: String
         },
-
-        // ==============================
-        // Education
-        // ==============================
 
         education: [
             {
@@ -45,10 +45,6 @@ const employeeSchema = new mongoose.Schema(
                 cgpa: Number
             }
         ],
-
-        // ==============================
-        // Address
-        // ==============================
 
         address: {
             current: {
@@ -73,10 +69,6 @@ const employeeSchema = new mongoose.Schema(
             }
         },
 
-        // ==============================
-        // Skills
-        // ==============================
-
         skills: [
             {
                 skill: String,
@@ -86,18 +78,10 @@ const employeeSchema = new mongoose.Schema(
             }
         ],
 
-        // ==============================
-        // Fresher Status
-        // ==============================
-
         isFresher: {
             type: Boolean,
             default: false
         },
-
-        // ==============================
-        // Work Experience
-        // ==============================
 
         workExperience: [
             {
@@ -112,10 +96,6 @@ const employeeSchema = new mongoose.Schema(
             }
         ],
 
-        // ==============================
-        // BDM Details
-        // ==============================
-
         bdmDetails: {
             nonTechnicalSkills: [String],
             languagesKnown: [String],
@@ -125,19 +105,16 @@ const employeeSchema = new mongoose.Schema(
             additionalInformation: String
         },
 
-        // ==============================
-        // Profile Completion
-        // ==============================
-
         profileCompleted: {
             type: Boolean,
             default: false
         }
     },
-
     {
         timestamps: true
     }
 );
 
-module.exports = mongoose.model("Employee", employeeSchema);
+module.exports =
+    mongoose.models.Employee ||
+    mongoose.model("Employee", employeeSchema);

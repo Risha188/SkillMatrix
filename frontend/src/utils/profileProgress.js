@@ -1,71 +1,116 @@
+// src/data/profileProgress.js
+
+// =========================================================
+// PROFILE SECTIONS
+// =========================================================
+
 export const PROFILE_SECTIONS = [
     {
-        key: "personal",
         name: "Personal Information",
-        path: "/employee/personal"
+        key: "personal",
+        path: "/employee/personal",
     },
-
     {
-        key: "education",
         name: "Education",
-        path: "/employee/education"
+        key: "education",
+        path: "/employee/education",
     },
-
     {
-        key: "address",
         name: "Address",
-        path: "/employee/address"
+        key: "address",
+        path: "/employee/address",
     },
-
     {
-        key: "skills",
         name: "Skills",
-        path: "/employee/skills"
+        key: "skills",
+        path: "/employee/skills",
     },
-
     {
-        key: "experience",
         name: "Work Experience",
-        path: "/employee/experience"
+        key: "experience",
+        path: "/employee/experience",
     },
-
     {
-        key: "bdm",
         name: "BDM Details",
-        path: "/employee/bdm"
+        key: "bdm",
+        path: "/employee/bdm",
     },
-
-    {
-        key: "declaration",
-        name: "Declaration",
-        path: "/employee/declaration"
-    }
 ];
 
+// =========================================================
+// GET CURRENT EMPLOYEE ID
+// =========================================================
 
-// ==========================================
+const getEmployeeId = () => {
+    return (
+        sessionStorage.getItem("employeeId") ||
+        sessionStorage.getItem("employeeUserId") ||
+        localStorage.getItem("employeeId") ||
+        "unknown"
+    );
+};
+
+// =========================================================
+// EMPLOYEE-SPECIFIC STORAGE KEY
+// =========================================================
+
+const getStorageKey = () => {
+    const employeeId = getEmployeeId();
+
+    return `completedProfileSections_${employeeId}`;
+};
+
+// =========================================================
 // GET COMPLETED SECTIONS
-// ==========================================
+// =========================================================
 
 export const getCompletedSections = () => {
-
     try {
+        const employeeKey = getStorageKey();
 
-        const completed =
-            sessionStorage.getItem(
-                "completedSections"
-            );
+        // -------------------------------------------------
+        // FIRST: Read new employee-specific storage
+        // -------------------------------------------------
 
-        if (!completed) {
-            return [];
+        const employeeData =
+            sessionStorage.getItem(employeeKey) ||
+            localStorage.getItem(employeeKey);
+
+        if (employeeData) {
+            const parsed = JSON.parse(employeeData);
+
+            if (Array.isArray(parsed)) {
+                return parsed;
+            }
         }
 
-        return JSON.parse(completed);
+        // -------------------------------------------------
+        // MIGRATE OLD GLOBAL STORAGE
+        // -------------------------------------------------
 
+        const oldData =
+            localStorage.getItem(
+                "completedProfileSections"
+            );
+
+        if (oldData) {
+            const parsedOldData =
+                JSON.parse(oldData);
+
+            if (Array.isArray(parsedOldData)) {
+                localStorage.setItem(
+                    employeeKey,
+                    JSON.stringify(parsedOldData)
+                );
+
+                return parsedOldData;
+            }
+        }
+
+        return [];
     } catch (error) {
-
         console.error(
-            "Error reading completed sections:",
+            "Failed to load completed profile sections:",
             error
         );
 
@@ -73,91 +118,117 @@ export const getCompletedSections = () => {
     }
 };
 
-
-// ==========================================
+// =========================================================
 // MARK SECTION COMPLETED
-// ==========================================
+// =========================================================
 
 export const markSectionCompleted = (
     sectionKey
 ) => {
+    try {
+        const completedSections =
+            getCompletedSections();
 
-    const completed =
-        getCompletedSections();
+        if (
+            !completedSections.includes(
+                sectionKey
+            )
+        ) {
+            completedSections.push(sectionKey);
+        }
 
-    if (!completed.includes(sectionKey)) {
+        const employeeKey =
+            getStorageKey();
 
-        completed.push(sectionKey);
-
+        // Save employee-specific progress
         sessionStorage.setItem(
-            "completedSections",
-            JSON.stringify(completed)
+            employeeKey,
+            JSON.stringify(
+                completedSections
+            )
         );
-    }
 
-    window.dispatchEvent(
-        new Event(
-            "profileProgressUpdated"
-        )
-    );
+        localStorage.setItem(
+            employeeKey,
+            JSON.stringify(
+                completedSections
+            )
+        );
+
+        // Keep old key synchronized for backward compatibility
+        localStorage.setItem(
+            "completedProfileSections",
+            JSON.stringify(
+                completedSections
+            )
+        );
+
+        console.log(
+            "PROFILE SECTION COMPLETED:",
+            sectionKey
+        );
+
+        console.log(
+            "COMPLETED SECTIONS:",
+            completedSections
+        );
+
+        return completedSections;
+    } catch (error) {
+        console.error(
+            "Failed to mark section completed:",
+            error
+        );
+
+        return [];
+    }
 };
 
+// =========================================================
+// CHECK SECTION COMPLETED
+// =========================================================
 
-// ==========================================
-// REMOVE SECTION COMPLETION
-// ==========================================
-
-export const removeSectionCompleted = (
+export const isSectionCompleted = (
     sectionKey
 ) => {
-
-    const completed =
+    const completedSections =
         getCompletedSections();
 
-    const updated =
-        completed.filter(
-            (key) => key !== sectionKey
-        );
-
-    sessionStorage.setItem(
-        "completedSections",
-        JSON.stringify(updated)
-    );
-
-    window.dispatchEvent(
-        new Event(
-            "profileProgressUpdated"
-        )
+    return completedSections.includes(
+        sectionKey
     );
 };
 
+// =========================================================
+// GET COMPLETED COUNT
+// =========================================================
 
-// ==========================================
-// CLEAR ALL PROGRESS
-// ==========================================
+export const getCompletedCount = () => {
+    return getCompletedSections().length;
+};
 
-export const clearCompletedSections = () => {
+// =========================================================
+// GET REMAINING COUNT
+// =========================================================
 
-    sessionStorage.removeItem(
-        "completedSections"
-    );
+export const getRemainingCount = () => {
+    const completedSections =
+        getCompletedSections();
 
-    window.dispatchEvent(
-        new Event(
-            "profileProgressUpdated"
-        )
+    return Math.max(
+        PROFILE_SECTIONS.length -
+            completedSections.length,
+        0
     );
 };
 
+// =========================================================
+// GET COMPLETION PERCENTAGE
+// =========================================================
 
-// ==========================================
-// GET PROGRESS PERCENTAGE
-// ==========================================
-
-export const getProfileProgress = () => {
-
+export const getCompletionPercentage = () => {
     const completed =
-        getCompletedSections();
+        getCompletedCount();
 
     const total =
         PROFILE_SECTIONS.length;
@@ -167,6 +238,67 @@ export const getProfileProgress = () => {
     }
 
     return Math.round(
-        (completed.length / total) * 100
+        (completed / total) * 100
+    );
+};
+
+// =========================================================
+// MARK ALL COMPLETED
+// USE ONLY IF EMPLOYEE HAS ACTUALLY COMPLETED ALL
+// =========================================================
+
+export const markAllSectionsCompleted = () => {
+    const allSections =
+        PROFILE_SECTIONS.map(
+            (section) => section.key
+        );
+
+    const employeeKey =
+        getStorageKey();
+
+    sessionStorage.setItem(
+        employeeKey,
+        JSON.stringify(allSections)
+    );
+
+    localStorage.setItem(
+        employeeKey,
+        JSON.stringify(allSections)
+    );
+
+    localStorage.setItem(
+        "completedProfileSections",
+        JSON.stringify(allSections)
+    );
+
+    console.log(
+        "ALL PROFILE SECTIONS MARKED COMPLETED"
+    );
+
+    return allSections;
+};
+
+// =========================================================
+// RESET PROFILE PROGRESS
+// =========================================================
+
+export const resetProfileProgress = () => {
+    const employeeKey =
+        getStorageKey();
+
+    sessionStorage.removeItem(
+        employeeKey
+    );
+
+    localStorage.removeItem(
+        employeeKey
+    );
+
+    localStorage.removeItem(
+        "completedProfileSections"
+    );
+
+    console.log(
+        "Profile progress reset."
     );
 };

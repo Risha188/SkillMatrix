@@ -408,9 +408,7 @@ const WorkExperience = () => {
         try {
 
             const employeeId =
-                localStorage.getItem(
-                    "employeeId"
-                );
+    sessionStorage.getItem("employeeId");
 
             if (!employeeId) {
 

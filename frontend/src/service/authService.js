@@ -2,9 +2,9 @@ import axios from "axios";
 
 const API_URL = "http://localhost:5000/api/auth";
 
-// ==========================================
+// ======================================================
 // REGISTER
-// ==========================================
+// ======================================================
 
 export const registerUser = async (userData) => {
     return await axios.post(
@@ -13,9 +13,9 @@ export const registerUser = async (userData) => {
     );
 };
 
-// ==========================================
+// ======================================================
 // VERIFY EMAIL
-// ==========================================
+// ======================================================
 
 export const verifyEmail = async (verificationData) => {
     return await axios.post(
@@ -24,9 +24,9 @@ export const verifyEmail = async (verificationData) => {
     );
 };
 
-// ==========================================
+// ======================================================
 // SET PASSWORD
-// ==========================================
+// ======================================================
 
 export const setPassword = async (passwordData) => {
     return await axios.post(
@@ -35,9 +35,9 @@ export const setPassword = async (passwordData) => {
     );
 };
 
-// ==========================================
+// ======================================================
 // LOGIN
-// ==========================================
+// ======================================================
 
 export const loginUser = async (loginData) => {
     return await axios.post(
@@ -46,10 +46,9 @@ export const loginUser = async (loginData) => {
     );
 };
 
-// ==========================================
+// ======================================================
 // FORGOT PASSWORD
-// SEND RESET CODE
-// ==========================================
+// ======================================================
 
 export const forgotPassword = async (emailData) => {
     return await axios.post(
@@ -58,9 +57,9 @@ export const forgotPassword = async (emailData) => {
     );
 };
 
-// ==========================================
+// ======================================================
 // VERIFY RESET CODE
-// ==========================================
+// ======================================================
 
 export const verifyResetCode = async (resetCodeData) => {
     return await axios.post(
@@ -69,9 +68,9 @@ export const verifyResetCode = async (resetCodeData) => {
     );
 };
 
-// ==========================================
+// ======================================================
 // RESET PASSWORD
-// ==========================================
+// ======================================================
 
 export const resetPassword = async (passwordData) => {
     return await axios.post(

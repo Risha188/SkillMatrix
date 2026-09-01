@@ -5,6 +5,7 @@ import API from "../../utils/api.js";
 import { useEmployeeProfile } from "../../context/EmployeeProfileContext";
 
 const Education = () => {
+
   const navigate = useNavigate();
 
   const { profile, updateSection } = useEmployeeProfile();
@@ -15,10 +16,8 @@ const Education = () => {
 
   const [errors, setErrors] = useState({});
 
-  // =========================
-  // HANDLE CHANGE
-  // =========================
   const handleChange = (e) => {
+
     const { name, value } = e.target;
 
     setEducation((prev) => ({
@@ -33,9 +32,6 @@ const Education = () => {
     }));
   };
 
-  // =========================
-  // VALIDATION
-  // =========================
   const validateForm = () => {
     const newErrors = {};
 
@@ -188,9 +184,6 @@ const Education = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // =========================
-  // SUBMIT
-  // =========================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -203,7 +196,8 @@ const Education = () => {
 
     try {
       const employeeId =
-        localStorage.getItem("employeeId");
+        
+    sessionStorage.getItem("employeeId");
 
       if (!employeeId) {
         alert(
@@ -258,46 +252,39 @@ const Education = () => {
     }
   };
 
-  const inputClass =
-    "w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+   const inputClass =
+    "w-full min-w-0 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
   const errorInputClass =
-    "w-full rounded-lg border border-red-500 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100";
+    "w-full min-w-0 rounded-lg border border-red-500 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100";
 
   const labelClass =
     "mb-2 block text-sm font-medium text-gray-700";
 
   return (
-    <div className="min-h-screen bg-gray-50 px-6 py-8">
-
-      <div className="mx-auto max-w-5xl">
+    <div className="min-h-screen w-full overflow-x-hidden bg-gray-50 px-3 py-5 sm:px-4 sm:py-6 md:px-6 md:py-8">
+      <div className="mx-auto w-full max-w-5xl">
 
         {/* Header */}
         <div className="mb-8">
-
-          <h2 className="text-2xl font-bold text-gray-800">
+          <h2 className="text-xl font-bold text-gray-800 sm:text-2xl">
             Education
           </h2>
 
           <p className="mt-1 text-sm text-gray-500">
             Enter your educational qualifications and academic details.
           </p>
-
         </div>
 
         {/* Form */}
         <form
           onSubmit={handleSubmit}
-          className="rounded-xl bg-white p-6 shadow-md"
+          className="w-full rounded-xl bg-white p-4 shadow-md sm:p-6"
         >
+          <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 md:gap-6">
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-
-            {/* =========================
-                HIGHEST QUALIFICATION
-            ========================= */}
+            {/* Highest Qualification */}
             <div>
-
               <label
                 htmlFor="highestQualification"
                 className={labelClass}
@@ -308,45 +295,22 @@ const Education = () => {
               <select
                 id="highestQualification"
                 name="highestQualification"
-                value={
-                  education.highestQualification
-                }
+                value={education.highestQualification}
                 onChange={handleChange}
+                required
                 className={
                   errors.highestQualification
                     ? errorInputClass
                     : inputClass
                 }
               >
-
-                <option value="">
-                  Select Qualification
-                </option>
-
-                <option value="10th">
-                  10th
-                </option>
-
-                <option value="12th">
-                  12th
-                </option>
-
-                <option value="Diploma">
-                  Diploma
-                </option>
-
-                <option value="Graduation">
-                  Graduation
-                </option>
-
-                <option value="Post Graduation">
-                  Post Graduation
-                </option>
-
-                <option value="PhD">
-                  PhD
-                </option>
-
+                <option value="">Select Qualification</option>
+                <option value="10th">10th</option>
+                <option value="12th">12th</option>
+                <option value="Diploma">Diploma</option>
+                <option value="Graduation">Graduation</option>
+                <option value="Post Graduation">Post Graduation</option>
+                <option value="PhD">PhD</option>
               </select>
 
               {errors.highestQualification && (
@@ -354,14 +318,10 @@ const Education = () => {
                   {errors.highestQualification}
                 </p>
               )}
-
             </div>
 
-            {/* =========================
-                COURSE
-            ========================= */}
+            {/* Course */}
             <div>
-
               <label
                 htmlFor="course"
                 className={labelClass}
@@ -392,9 +352,7 @@ const Education = () => {
 
             </div>
 
-            {/* =========================
-                SPECIALIZATION
-            ========================= */}
+            {/* Specialization */}
             <div>
 
               <label
@@ -427,9 +385,7 @@ const Education = () => {
 
             </div>
 
-            {/* =========================
-                UNIVERSITY
-            ========================= */}
+            {/* University */}
             <div>
 
               <label
@@ -462,9 +418,7 @@ const Education = () => {
 
             </div>
 
-            {/* =========================
-                COLLEGE
-            ========================= */}
+            {/* College */}
             <div>
 
               <label
@@ -497,9 +451,7 @@ const Education = () => {
 
             </div>
 
-            {/* =========================
-                PASSING YEAR
-            ========================= */}
+            {/* Passing Year */}
             <div>
 
               <label
@@ -533,9 +485,7 @@ const Education = () => {
 
             </div>
 
-            {/* =========================
-                PERCENTAGE
-            ========================= */}
+            {/* Percentage */}
             <div>
 
               <label
@@ -570,9 +520,7 @@ const Education = () => {
 
             </div>
 
-            {/* =========================
-                CGPA
-            ========================= */}
+            {/* CGPA */}
             <div>
 
               <label
@@ -610,21 +558,16 @@ const Education = () => {
           </div>
 
           {/* Buttons */}
-          <div className="mt-8 flex justify-end border-t border-gray-200 pt-6">
-
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-end border-t border-gray-200 pt-6">
             <button
               type="submit"
-              className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="w-full rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white sm:w-auto shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               Save & Next
             </button>
-
           </div>
-
         </form>
-
       </div>
-
     </div>
   );
 };

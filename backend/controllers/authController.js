@@ -1,36 +1,47 @@
 const User = require("../model/User");
+const Employee = require("../model/Employee");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
-
 // ======================================================
 // EMAIL TRANSPORTER
 // ======================================================
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
+
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
     }
 });
 
+// ======================================================
+// GENERATE 6 DIGIT CODE
+// ======================================================
 
+const generateVerificationCode = () => {
+    return Math.floor(
+        100000 + Math.random() * 900000
+    ).toString();
+};
 
+// ======================================================
+// SEND ADMIN VERIFICATION EMAIL
+// ======================================================
 
 const sendAdminVerificationEmail = async (
     email,
     fullName,
     code
 ) => {
-
     await transporter.sendMail({
-
         from: `"SkillMatrix" <${process.env.EMAIL_USER}>`,
 
         to: email,
 
-        subject: "SkillMatrix - Admin Verification Code",
+        subject:
+            "SkillMatrix - Admin Verification Code",
 
         html: `
             <div style="
@@ -96,25 +107,21 @@ const sendAdminVerificationEmail = async (
 };
 
 // ======================================================
-// GENERATE 6 DIGIT VERIFICATION CODE
+// SEND EMPLOYEE VERIFICATION EMAIL
 // ======================================================
 
-
-const generateVerificationCode = () => {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-};
-
-
-// ======================================================
-// SEND VERIFICATION EMAIL
-// ======================================================
-
-const sendVerificationEmail = async (email, fullName, code) => {
-
+const sendVerificationEmail = async (
+    email,
+    fullName,
+    code
+) => {
     await transporter.sendMail({
         from: `"SkillMatrix" <${process.env.EMAIL_USER}>`,
+
         to: email,
-        subject: "SkillMatrix - Email Verification Code",
+
+        subject:
+            "SkillMatrix - Email Verification Code",
 
         html: `
             <div style="
@@ -126,14 +133,17 @@ const sendVerificationEmail = async (email, fullName, code) => {
                 border-radius: 10px;
             ">
 
-                <h2 style="color: #2563eb;">
+                <h2 style="color:#2563eb;">
                     Welcome to SkillMatrix
                 </h2>
 
-                <p>Hello <strong>${fullName}</strong>,</p>
+                <p>
+                    Hello <strong>${fullName}</strong>,
+                </p>
 
                 <p>
-                    Thank you for creating your SkillMatrix employee account.
+                    Thank you for creating your
+                    SkillMatrix employee account.
                 </p>
 
                 <p>
@@ -141,14 +151,14 @@ const sendVerificationEmail = async (email, fullName, code) => {
                 </p>
 
                 <div style="
-                    font-size: 32px;
-                    font-weight: bold;
-                    letter-spacing: 8px;
-                    color: #2563eb;
-                    padding: 20px;
-                    background: #f3f4f6;
-                    text-align: center;
-                    border-radius: 8px;
+                    font-size:32px;
+                    font-weight:bold;
+                    letter-spacing:8px;
+                    color:#2563eb;
+                    padding:20px;
+                    background:#f3f4f6;
+                    text-align:center;
+                    border-radius:8px;
                 ">
                     ${code}
                 </div>
@@ -159,13 +169,16 @@ const sendVerificationEmail = async (email, fullName, code) => {
                 </p>
 
                 <p>
-                    If you did not create this account, you can safely ignore
-                    this email.
+                    If you did not create this account,
+                    you can safely ignore this email.
                 </p>
 
                 <hr>
 
-                <p style="color: #777; font-size: 12px;">
+                <p style="
+                    color:#777;
+                    font-size:12px;
+                ">
                     SkillMatrix Employee Portal
                 </p>
 
@@ -174,15 +187,12 @@ const sendVerificationEmail = async (email, fullName, code) => {
     });
 };
 
-
 // ======================================================
 // REGISTER USER
-// STEP 1:
-// NAME + EMAIL
+// POST /api/auth/register
 // ======================================================
 
 const registerUser = async (req, res) => {
-
     try {
 
         console.log("=================================");
@@ -195,154 +205,171 @@ const registerUser = async (req, res) => {
             email
         } = req.body;
 
-
-        // ------------------------------------------
+        // ==================================================
         // VALIDATION
-        // ------------------------------------------
+        // ==================================================
 
         if (!fullName || !email) {
-
             return res.status(400).json({
                 success: false,
-                message: "Full name and email are required"
+                message:
+                    "Full name and email are required"
             });
         }
 
+        const normalizedEmail =
+            email.toLowerCase().trim();
 
-        const normalizedEmail = email.toLowerCase().trim();
+        const normalizedName =
+            fullName.trim();
 
-
-        // ------------------------------------------
-        // CHECK EMAIL FORMAT
-        // ------------------------------------------
+        // ==================================================
+        // EMAIL FORMAT
+        // ==================================================
 
         const emailRegex =
             /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
         if (!emailRegex.test(normalizedEmail)) {
-
             return res.status(400).json({
                 success: false,
-                message: "Please enter a valid email address"
+                message:
+                    "Please enter a valid email address"
             });
         }
 
-
-        // ------------------------------------------
+        // ==================================================
         // CHECK EXISTING USER
-        // ------------------------------------------
+        // ==================================================
 
-        const existingUser = await User.findOne({
-            email: normalizedEmail
-        });
-
+        const existingUser =
+            await User.findOne({
+                email: normalizedEmail
+            });
 
         if (existingUser) {
 
-            // If email is already verified
+            // Already verified
             if (existingUser.isEmailVerified) {
-
                 return res.status(400).json({
                     success: false,
-                    message: "An account with this email already exists"
+                    message:
+                        "An account with this email already exists"
                 });
             }
 
-
-            // --------------------------------------
-            // UNVERIFIED USER
-            // RESEND VERIFICATION CODE
-            // --------------------------------------
+            // ==================================================
+            // RESEND VERIFICATION
+            // ==================================================
 
             const verificationCode =
                 generateVerificationCode();
 
             const verificationCodeExpires =
-                new Date(Date.now() + 10 * 60 * 1000);
+                new Date(
+                    Date.now() +
+                    10 * 60 * 1000
+                );
 
+            existingUser.fullName =
+                normalizedName;
 
-            existingUser.fullName = fullName.trim();
             existingUser.verificationCode =
                 verificationCode;
 
             existingUser.verificationCodeExpires =
                 verificationCodeExpires;
 
-
             await existingUser.save();
 
+            try {
 
-            await sendVerificationEmail(
-                normalizedEmail,
-                fullName,
-                verificationCode
-            );
+                await sendVerificationEmail(
+                    normalizedEmail,
+                    normalizedName,
+                    verificationCode
+                );
 
+            } catch (emailError) {
+
+                console.error(
+                    "❌ Verification email error:",
+                    emailError
+                );
+
+                return res.status(500).json({
+                    success: false,
+                    message:
+                        "Unable to send verification email. Please try again."
+                });
+            }
 
             return res.status(200).json({
                 success: true,
                 message:
                     "Verification code sent to your email",
-                email: normalizedEmail
+                email:
+                    normalizedEmail
             });
         }
 
-
-        // ------------------------------------------
-        // GENERATE VERIFICATION CODE
-        // ------------------------------------------
+        // ==================================================
+        // CREATE VERIFICATION CODE
+        // ==================================================
 
         const verificationCode =
             generateVerificationCode();
 
         const verificationCodeExpires =
-            new Date(Date.now() + 10 * 60 * 1000);
+            new Date(
+                Date.now() +
+                10 * 60 * 1000
+            );
 
-
-        // ------------------------------------------
+        // ==================================================
         // CREATE EMPLOYEE
-        // ------------------------------------------
+        // ==================================================
 
-        const user = await User.create({
+        const user =
+            await User.create({
 
-            fullName: fullName.trim(),
+                fullName:
+                    normalizedName,
 
-            email: normalizedEmail,
+                email:
+                    normalizedEmail,
 
-            // Password will be created
-            // after email verification
-            password: null,
+                password:
+                    null,
 
-            // IMPORTANT:
-            // Public registration can ONLY
-            // create employees.
-            role: "employee",
+                role:
+                    "employee",
 
-            isActive: true,
+                isActive:
+                    true,
 
-            isEmailVerified: false,
+                isEmailVerified:
+                    false,
 
-            verificationCode,
+                verificationCode,
 
-            verificationCodeExpires
-        });
-
+                verificationCodeExpires
+            });
 
         console.log(
             "Employee registration created:",
             user._id
         );
 
-
-        // ------------------------------------------
+        // ==================================================
         // SEND EMAIL
-        // ------------------------------------------
+        // ==================================================
 
         try {
 
             await sendVerificationEmail(
                 normalizedEmail,
-                fullName,
+                normalizedName,
                 verificationCode
             );
 
@@ -353,12 +380,9 @@ const registerUser = async (req, res) => {
                 emailError
             );
 
-
-            // Remove incomplete account
-            // if email could not be sent
-
-            await User.findByIdAndDelete(user._id);
-
+            await User.findByIdAndDelete(
+                user._id
+            );
 
             return res.status(500).json({
                 success: false,
@@ -367,22 +391,21 @@ const registerUser = async (req, res) => {
             });
         }
 
-
-        // ------------------------------------------
+        // ==================================================
         // RESPONSE
-        // ------------------------------------------
+        // ==================================================
 
         return res.status(201).json({
-
             success: true,
 
             message:
                 "Verification code sent to your email",
 
-            email: user.email,
+            email:
+                user.email,
 
-            userId: user._id
-
+            userId:
+                user._id
         });
 
     } catch (error) {
@@ -394,37 +417,38 @@ const registerUser = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            message: "Server error during registration"
+            message:
+                "Server error during registration"
         });
     }
 };
 
-
 // ======================================================
 // VERIFY EMAIL
-// STEP 2
+// POST /api/auth/verify
 // ======================================================
 
 const verifyEmail = async (req, res) => {
-
     try {
 
-        console.log("===== VERIFY EMAIL =====");
-        console.log("BODY:", req.body);
+        console.log(
+            "===== VERIFY EMAIL ====="
+        );
 
+        console.log(
+            "BODY:",
+            req.body
+        );
 
         const {
             email,
             verificationCode
         } = req.body;
 
-
-        // ------------------------------------------
-        // VALIDATION
-        // ------------------------------------------
-
-        if (!email || !verificationCode) {
-
+        if (
+            !email ||
+            !verificationCode
+        ) {
             return res.status(400).json({
                 success: false,
                 message:
@@ -432,51 +456,52 @@ const verifyEmail = async (req, res) => {
             });
         }
 
-
         const normalizedEmail =
             email.toLowerCase().trim();
 
+        const cleanCode =
+            verificationCode
+                .toString()
+                .trim();
 
-        // ------------------------------------------
+        // ==================================================
         // FIND USER
-        // ------------------------------------------
+        // ==================================================
 
-        const user = await User.findOne({
-            email: normalizedEmail
-        });
-
+        const user =
+            await User.findOne({
+                email:
+                    normalizedEmail
+            });
 
         if (!user) {
-
             return res.status(404).json({
                 success: false,
-                message: "User not found"
+                message:
+                    "User not found"
             });
         }
 
-
-        // ------------------------------------------
+        // ==================================================
         // ALREADY VERIFIED
-        // ------------------------------------------
+        // ==================================================
 
         if (user.isEmailVerified) {
-
             return res.status(400).json({
                 success: false,
-                message: "Email is already verified"
+                message:
+                    "Email is already verified"
             });
         }
 
-
-        // ------------------------------------------
-        // CHECK CODE
-        // ------------------------------------------
+        // ==================================================
+        // CODE CHECK
+        // ==================================================
 
         if (
             user.verificationCode !==
-            verificationCode.toString().trim()
+            cleanCode
         ) {
-
             return res.status(400).json({
                 success: false,
                 message:
@@ -484,16 +509,15 @@ const verifyEmail = async (req, res) => {
             });
         }
 
-
-        // ------------------------------------------
-        // CHECK EXPIRATION
-        // ------------------------------------------
+        // ==================================================
+        // EXPIRATION
+        // ==================================================
 
         if (
             !user.verificationCodeExpires ||
-            user.verificationCodeExpires < new Date()
+            user.verificationCodeExpires <
+                new Date()
         ) {
-
             return res.status(400).json({
                 success: false,
                 message:
@@ -501,35 +525,40 @@ const verifyEmail = async (req, res) => {
             });
         }
 
+        // ==================================================
+        // VERIFY
+        // ==================================================
 
-        // ------------------------------------------
-        // VERIFY EMAIL
-        // ------------------------------------------
+        user.isEmailVerified =
+            true;
 
-        user.isEmailVerified = true;
+        user.verificationCode =
+            null;
 
-        user.verificationCode = null;
-
-        user.verificationCodeExpires = null;
-
+        user.verificationCodeExpires =
+            null;
 
         await user.save();
 
-
         return res.status(200).json({
-
             success: true,
 
             message:
                 "Email verified successfully",
 
             user: {
-                id: user._id,
-                fullName: user.fullName,
-                email: user.email,
-                role: user.role
-            }
+                id:
+                    user._id,
 
+                fullName:
+                    user.fullName,
+
+                email:
+                    user.email,
+
+                role:
+                    user.role
+            }
         });
 
     } catch (error) {
@@ -547,20 +576,22 @@ const verifyEmail = async (req, res) => {
     }
 };
 
-
 // ======================================================
 // SET PASSWORD
-// STEP 3
-// AFTER EMAIL VERIFICATION
+// POST /api/auth/set-password
 // ======================================================
 
 const setPassword = async (req, res) => {
-
     try {
 
-        console.log("===== SET PASSWORD =====");
-        console.log("BODY:", req.body);
+        console.log(
+            "===== SET PASSWORD ====="
+        );
 
+        console.log(
+            "BODY:",
+            req.body
+        );
 
         const {
             email,
@@ -568,17 +599,15 @@ const setPassword = async (req, res) => {
             confirmPassword
         } = req.body;
 
-
-        // ------------------------------------------
+        // ==================================================
         // VALIDATION
-        // ------------------------------------------
+        // ==================================================
 
         if (
             !email ||
             !password ||
             !confirmPassword
         ) {
-
             return res.status(400).json({
                 success: false,
                 message:
@@ -586,13 +615,10 @@ const setPassword = async (req, res) => {
             });
         }
 
-
-        // ------------------------------------------
-        // CHECK PASSWORD MATCH
-        // ------------------------------------------
-
-        if (password !== confirmPassword) {
-
+        if (
+            password !==
+            confirmPassword
+        ) {
             return res.status(400).json({
                 success: false,
                 message:
@@ -600,13 +626,9 @@ const setPassword = async (req, res) => {
             });
         }
 
-
-        // ------------------------------------------
-        // PASSWORD LENGTH
-        // ------------------------------------------
-
-        if (password.length < 8) {
-
+        if (
+            password.length < 8
+        ) {
             return res.status(400).json({
                 success: false,
                 message:
@@ -614,35 +636,34 @@ const setPassword = async (req, res) => {
             });
         }
 
-
         const normalizedEmail =
             email.toLowerCase().trim();
 
-
-        // ------------------------------------------
+        // ==================================================
         // FIND USER
-        // ------------------------------------------
+        // ==================================================
 
-        const user = await User.findOne({
-            email: normalizedEmail
-        });
-
+        const user =
+            await User.findOne({
+                email:
+                    normalizedEmail
+            });
 
         if (!user) {
-
             return res.status(404).json({
                 success: false,
-                message: "User not found"
+                message:
+                    "User not found"
             });
         }
 
+        // ==================================================
+        // EMAIL VERIFIED
+        // ==================================================
 
-        // ------------------------------------------
-        // EMAIL MUST BE VERIFIED
-        // ------------------------------------------
-
-        if (!user.isEmailVerified) {
-
+        if (
+            !user.isEmailVerified
+        ) {
             return res.status(403).json({
                 success: false,
                 message:
@@ -650,13 +671,11 @@ const setPassword = async (req, res) => {
             });
         }
 
-
-        // ------------------------------------------
-        // PREVENT PASSWORD REPLACEMENT
-        // ------------------------------------------
+        // ==================================================
+        // PREVENT REPLACEMENT
+        // ==================================================
 
         if (user.password) {
-
             return res.status(400).json({
                 success: false,
                 message:
@@ -664,28 +683,31 @@ const setPassword = async (req, res) => {
             });
         }
 
-
-        // ------------------------------------------
+        // ==================================================
         // HASH PASSWORD
-        // ------------------------------------------
+        // ==================================================
 
         const hashedPassword =
-            await bcrypt.hash(password, 10);
+            await bcrypt.hash(
+                password,
+                10
+            );
 
-
-        user.password = hashedPassword;
-
+        user.password =
+            hashedPassword;
 
         await user.save();
 
+        console.log(
+            "✅ PASSWORD CREATED:",
+            user.email
+        );
 
         return res.status(200).json({
-
             success: true,
 
             message:
                 "Password created successfully. You can now login."
-
         });
 
     } catch (error) {
@@ -703,245 +725,570 @@ const setPassword = async (req, res) => {
     }
 };
 
-
 // ======================================================
 // LOGIN USER
-// ======================================================
-
-// ======================================================
-// LOGIN USER
+// POST /api/auth/login
 // ======================================================
 
 // ======================================================
 // LOGIN USER
-// ======================================================
-
-// ======================================================
-// LOGIN USER
+// POST /api/auth/login
 // ======================================================
 
 const loginUser = async (req, res) => {
     try {
 
-        console.log("===== LOGIN REQUEST =====");
-        console.log("Request body:", req.body);
+        console.log("=================================");
+        console.log("========== LOGIN REQUEST =========");
+        console.log("=================================");
 
-        const {
-            email,
-            password
-        } = req.body;
+        const { email, password } = req.body;
 
-        // ==========================================
+
+        // ==================================================
         // VALIDATION
-        // ==========================================
+        // ==================================================
 
-        if (!email || !password) {
+        if (
+            typeof email !== "string" ||
+            !email.trim() ||
+            typeof password !== "string" ||
+            !password
+        ) {
             return res.status(400).json({
                 success: false,
-                message: "Email and password are required"
+                message: "Email and password are required."
             });
         }
 
-        // ==========================================
-        // CLEAN EMAIL
-        // ==========================================
 
-        const cleanEmail = email
-            .toLowerCase()
-            .trim();
+        // ==================================================
+        // NORMALIZE EMAIL
+        // ==================================================
 
-        // ==========================================
+        const cleanEmail = email.trim().toLowerCase();
+
+        // DO NOT trim password
+        const loginPassword = password;
+
+
+        console.log("Login Email:", cleanEmail);
+        console.log("Password Length:", loginPassword.length);
+
+
+        // ==================================================
         // FIND USER
-        // ==========================================
+        // ==================================================
 
         const user = await User.findOne({
             email: cleanEmail
         });
 
-        // ==========================================
-        // ACCOUNT NOT FOUND
-        // ==========================================
 
         if (!user) {
-            return res.status(404).json({
+
+            console.log("❌ USER NOT FOUND");
+
+            return res.status(401).json({
                 success: false,
-                message: "No account found. Please create an account first."
+                message: "Invalid email or password."
             });
         }
 
-        // ==========================================
-        // CHECK ACCOUNT STATUS
-        // ==========================================
+
+        console.log("✅ USER FOUND");
+        console.log("User ID:", user._id.toString());
+        console.log("Role:", user.role);
+
+
+        // ==================================================
+        // ACCOUNT STATUS
+        // ==================================================
 
         if (user.isActive === false) {
+
             return res.status(403).json({
                 success: false,
-                message: "Your account has been deactivated"
+                message: "Your account has been deactivated."
             });
         }
 
-        // ==========================================
-        // CHECK PASSWORD
-        // ==========================================
+
+        // ==================================================
+        // PASSWORD
+        // ==================================================
 
         if (!user.password) {
+
             return res.status(401).json({
                 success: false,
                 message:
-                    "Password has not been created. Please complete registration."
+                    "Password has not been created. Please complete Set Password first."
             });
         }
 
-        // ==========================================
-        // COMPARE PASSWORD
-        // ==========================================
+
+        // ==================================================
+        // CHECK PASSWORD
+        // ==================================================
 
         const passwordMatch = await bcrypt.compare(
-            password,
+            loginPassword,
             user.password
         );
 
+
         if (!passwordMatch) {
+
+            console.log("❌ PASSWORD DOES NOT MATCH");
+
             return res.status(401).json({
                 success: false,
-                message: "Invalid email or password"
+                message: "Invalid email or password."
             });
         }
 
-        // ==========================================
+
+        console.log("✅ PASSWORD MATCH");
+
+
+        // ==================================================
+        // EMAIL VERIFICATION
+        // ==================================================
+
+        if (
+            user.role === "employee" &&
+            user.isEmailVerified !== true
+        ) {
+
+            return res.status(403).json({
+                success: false,
+                message:
+                    "Please verify your email before logging in."
+            });
+        }
+
+
+        // ==================================================
+        // JWT SECRET
+        // ==================================================
+
+        if (!process.env.JWT_SECRET) {
+
+            console.error("❌ JWT_SECRET missing");
+
+            return res.status(500).json({
+                success: false,
+                message: "JWT_SECRET is not configured."
+            });
+        }
+
+
+        // ==================================================
+        // EMPLOYEE PROFILE
+        // ==================================================
+
+        let employee = null;
+
+
+        if (user.role === "employee") {
+
+            console.log("=================================");
+            console.log("🔎 FINDING EMPLOYEE PROFILE");
+            console.log("=================================");
+
+
+            // --------------------------------------------------
+            // FIND BY USER ID
+            // --------------------------------------------------
+
+            employee = await Employee.findOne({
+                userId: user._id
+            });
+
+
+            // --------------------------------------------------
+            // IF NOT FOUND, FIND BY EMAIL
+            // --------------------------------------------------
+
+            if (!employee) {
+
+                console.log(
+                    "⚠️ Employee not found by userId."
+                );
+
+                employee = await Employee.findOne({
+                    email: cleanEmail
+                });
+            }
+
+
+            // --------------------------------------------------
+            // EXISTING EMPLOYEE FOUND
+            // --------------------------------------------------
+
+            if (employee) {
+
+                console.log(
+                    "✅ Employee found:",
+                    employee.employeeId
+                );
+
+
+                // ------------------------------------------------
+                // LINK OLD EMPLOYEE TO USER
+                // ------------------------------------------------
+
+                if (!employee.userId) {
+
+                    console.log(
+                        "🔧 Linking Employee to User..."
+                    );
+
+                    await Employee.updateOne(
+                        {
+                            _id: employee._id
+                        },
+                        {
+                            $set: {
+                                userId: user._id,
+                                email: cleanEmail
+                            }
+                        }
+                    );
+
+
+                    employee.userId = user._id;
+                    employee.email = cleanEmail;
+
+
+                    console.log(
+                        "✅ Employee linked successfully."
+                    );
+                }
+            }
+
+
+            // --------------------------------------------------
+            // CREATE EMPLOYEE IF IT DOES NOT EXIST
+            // --------------------------------------------------
+
+            if (!employee) {
+
+                console.log(
+                    "⚠️ Employee profile does not exist."
+                );
+
+                console.log(
+                    "🔧 Creating employee profile..."
+                );
+
+
+                // Generate a SAFE unique employee ID
+                const employeeId =
+                    `EMP${Date.now()}`;
+
+
+                // Get name
+                const fullName =
+                    String(
+                        user.fullName || ""
+                    ).trim();
+
+
+                const nameParts =
+                    fullName
+                        .split(/\s+/)
+                        .filter(Boolean);
+
+
+                const firstName =
+                    nameParts.shift() || "";
+
+
+                const lastName =
+                    nameParts.join(" ");
+
+
+                employee =
+                    await Employee.create({
+
+                        userId: user._id,
+
+                        employeeId: employeeId,
+
+                        email: cleanEmail,
+
+                        personalDetails: {
+
+                            firstName: firstName,
+
+                            lastName: lastName,
+
+                            phone: "",
+
+                            alternatePhone: "",
+
+                            dateOfBirth: null,
+
+                            gender: ""
+                        },
+
+                        education: [],
+
+                        address: {
+
+                            current: {},
+
+                            permanent: {},
+
+                            sameAsCurrent: false
+                        },
+
+                        skills: [],
+
+                        isFresher: false,
+
+                        workExperience: [],
+
+                        bdmDetails: {
+
+                            nonTechnicalSkills: [],
+
+                            languagesKnown: [],
+
+                            hobbies: [],
+
+                            areasOfInterest: [],
+
+                            keyStrengths: "",
+
+                            additionalInformation: ""
+                        },
+
+                        profileCompleted: false
+                    });
+
+
+                console.log(
+                    "✅ EMPLOYEE CREATED:",
+                    employee.employeeId
+                );
+            }
+
+
+            // --------------------------------------------------
+            // FINAL CHECK
+            // --------------------------------------------------
+
+            if (!employee) {
+
+                return res.status(500).json({
+                    success: false,
+                    message:
+                        "Employee profile could not be loaded."
+                });
+            }
+        }
+
+
+        // ==================================================
         // CREATE JWT
-        // ==========================================
+        // ==================================================
 
         const token = jwt.sign(
+
             {
-                userId: user._id,
+                userId: user._id.toString(),
+
                 role: user.role
             },
+
             process.env.JWT_SECRET,
+
             {
                 expiresIn: "1d"
             }
         );
 
-        // ==========================================
-        // SUCCESS
-        // ==========================================
 
+        // ==================================================
+        // SAFE USER
+        // ==================================================
+
+        const safeUser = {
+
+            id: user._id,
+
+            fullName: user.fullName,
+
+            email: user.email,
+
+            role: user.role,
+
+            employeeId:
+                employee?.employeeId || null
+        };
+
+
+        // ==================================================
+        // FINAL LOGIN RESPONSE
+        // ==================================================
+
+        console.log("=================================");
+        console.log("✅ LOGIN SUCCESS");
+        console.log("Email:", user.email);
+        console.log("Role:", user.role);
         console.log(
-            `✅ LOGIN SUCCESS: ${user.email} | ROLE: ${user.role}`
+            "Employee ID:",
+            employee?.employeeId || "N/A"
         );
+        console.log("=================================");
+
 
         return res.status(200).json({
+
             success: true,
-            message: "Login successful",
 
-            token,
+            message: "Login successful.",
 
-            user: {
-                id: user._id,
-                fullName: user.fullName,
-                email: user.email,
-                role: user.role
-            }
+            token: token,
+
+            user: safeUser,
+
+            employee: employee || null,
+
+            employeeId:
+                employee?.employeeId || null
         });
+
 
     } catch (error) {
 
         console.error(
-            "❌ Login Error:",
+            "================================="
+        );
+
+        console.error(
+            "❌ LOGIN SERVER ERROR"
+        );
+
+        console.error(
             error
         );
 
+        console.error(
+            "================================="
+        );
+
+
         return res.status(500).json({
+
             success: false,
-            message: "Server error during login"
+
+            message:
+                "Server error during login.",
+
+            error:
+                error.message
         });
     }
 };
 
-// ======================================================
-// FORGOT PASSWORD
-// SEND RESET CODE
-// ======================================================
-
-const forgotPassword = async (req, res) => {
+const forgotPassword = async (
+    req,
+    res
+) => {
     try {
 
-        console.log("===== FORGOT PASSWORD =====");
-        console.log("Request Body:", req.body);
+        console.log(
+            "===== FORGOT PASSWORD ====="
+        );
 
-        const { email } = req.body;
+        const {
+            email
+        } = req.body;
 
         if (!email) {
             return res.status(400).json({
                 success: false,
-                message: "Email is required"
+                message:
+                    "Email is required"
             });
         }
 
-        const cleanEmail = email.toLowerCase().trim();
+        const cleanEmail =
+            email.toLowerCase().trim();
 
-        // ==========================================
-        // FIND EMPLOYEE
-        // ==========================================
+        // ==================================================
+        // EMPLOYEE ONLY
+        // ==================================================
 
-        const user = await User.findOne({
-            email: cleanEmail,
-            role: "employee"
-        });
+        const user =
+            await User.findOne({
+                email:
+                    cleanEmail,
+
+                role:
+                    "employee"
+            });
 
         if (!user) {
             return res.status(404).json({
                 success: false,
-                message: "No employee account found with this email"
+                message:
+                    "No employee account found with this email"
             });
         }
 
-        // ==========================================
-        // CHECK ACCOUNT
-        // ==========================================
-
-        if (user.isActive === false) {
+        if (
+            user.isActive === false
+        ) {
             return res.status(403).json({
                 success: false,
-                message: "Your account has been deactivated"
+                message:
+                    "Your account has been deactivated"
             });
         }
 
-        // ==========================================
-        // GENERATE 6 DIGIT CODE
-        // ==========================================
+        // ==================================================
+        // GENERATE RESET CODE
+        // ==================================================
 
         const resetCode =
-            Math.floor(
-                100000 + Math.random() * 900000
-            ).toString();
+            generateVerificationCode();
 
-        // Code valid for 10 minutes
-
-        const resetExpires =
+        const resetCodeExpires =
             new Date(
-                Date.now() + 10 * 60 * 1000
+                Date.now() +
+                10 * 60 * 1000
             );
 
-        // ==========================================
-        // SAVE RESET DATA
-        // ==========================================
+        // ==================================================
+        // SAVE USING ACTUAL MODEL FIELDS
+        // ==================================================
 
-        user.resetPasswordCode = resetCode;
-        user.resetPasswordExpires = resetExpires;
-        user.resetPasswordVerified = false;
+        user.resetCode =
+            resetCode;
+
+        user.resetCodeExpires =
+            resetCodeExpires;
 
         await user.save();
 
-        // ==========================================
-        // SEND EMAIL
-        // ==========================================
+        // ==================================================
+        // EMAIL
+        // ==================================================
 
-        const mailOptions = {
-            from: `"SkillMatrix" <${process.env.EMAIL_USER}>`,
-            to: cleanEmail,
-            subject: "SkillMatrix Password Reset Code",
+        await transporter.sendMail({
+            from:
+                `"SkillMatrix" <${process.env.EMAIL_USER}>`,
+
+            to:
+                cleanEmail,
+
+            subject:
+                "SkillMatrix Password Reset Code",
 
             html: `
                 <div style="
@@ -959,12 +1306,10 @@ const forgotPassword = async (req, res) => {
                     </h2>
 
                     <p>
-                        Hello <strong>${user.fullName}</strong>,
-                    </p>
-
-                    <p>
-                        We received a request to reset your
-                        SkillMatrix employee account password.
+                        Hello
+                        <strong>
+                            ${user.fullName}
+                        </strong>,
                     </p>
 
                     <p>
@@ -972,22 +1317,24 @@ const forgotPassword = async (req, res) => {
                     </p>
 
                     <div style="
-                        font-size: 32px;
-                        font-weight: bold;
-                        letter-spacing: 8px;
-                        color: #2563eb;
-                        background: #eff6ff;
-                        padding: 20px;
-                        text-align: center;
-                        border-radius: 10px;
-                        margin: 20px 0;
+                        font-size:32px;
+                        font-weight:bold;
+                        letter-spacing:8px;
+                        color:#2563eb;
+                        background:#eff6ff;
+                        padding:20px;
+                        text-align:center;
+                        border-radius:10px;
+                        margin:20px 0;
                     ">
                         ${resetCode}
                     </div>
 
                     <p>
                         This code will expire in
-                        <strong>10 minutes</strong>.
+                        <strong>
+                            10 minutes
+                        </strong>.
                     </p>
 
                     <p>
@@ -995,20 +1342,19 @@ const forgotPassword = async (req, res) => {
                         please ignore this email.
                     </p>
 
-                    <hr />
+                    <hr>
 
                     <p style="
                         color:#64748b;
                         font-size:12px;
                     ">
-                        © ${new Date().getFullYear()} SkillMatrix
+                        © ${new Date().getFullYear()}
+                        SkillMatrix
                     </p>
 
                 </div>
             `
-        };
-
-        await transporter.sendMail(mailOptions);
+        });
 
         console.log(
             "✅ RESET CODE SENT:",
@@ -1017,8 +1363,12 @@ const forgotPassword = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            message: "Reset code sent successfully",
-            email: cleanEmail
+
+            message:
+                "Reset code sent successfully",
+
+            email:
+                cleanEmail
         });
 
     } catch (error) {
@@ -1030,88 +1380,112 @@ const forgotPassword = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            message: error.message
+            message:
+                error.message
         });
     }
 };
+
 // ======================================================
 // VERIFY RESET CODE
+// POST /api/auth/verify-reset-code
 // ======================================================
 
-const verifyResetCode = async (req, res) => {
+const verifyResetCode = async (
+    req,
+    res
+) => {
     try {
-
-        console.log("===== VERIFY RESET CODE =====");
 
         const {
             email,
             resetCode
         } = req.body;
 
-        if (!email || !resetCode) {
+        if (
+            !email ||
+            !resetCode
+        ) {
             return res.status(400).json({
                 success: false,
-                message: "Email and reset code are required"
+                message:
+                    "Email and reset code are required"
             });
         }
 
-        const cleanEmail = email.toLowerCase().trim();
-        const cleanCode = resetCode.toString().trim();
+        const cleanEmail =
+            email.toLowerCase().trim();
 
-        // ==========================================
-        // FIND EMPLOYEE
-        // ==========================================
+        const cleanCode =
+            resetCode
+                .toString()
+                .trim();
 
-        const user = await User.findOne({
-            email: cleanEmail,
-            role: "employee"
-        });
+        const user =
+            await User.findOne({
+                email:
+                    cleanEmail,
+
+                role:
+                    "employee"
+            });
 
         if (!user) {
             return res.status(404).json({
                 success: false,
-                message: "Employee account not found"
+                message:
+                    "Employee account not found"
             });
         }
 
-        // ==========================================
-        // CHECK CODE
-        // ==========================================
-
-        if (user.resetPasswordCode !== cleanCode) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid reset code"
-            });
-        }
-
-        // ==========================================
-        // CHECK EXPIRY
-        // ==========================================
+        // ==================================================
+        // CODE CHECK
+        // ==================================================
 
         if (
-            !user.resetPasswordExpires ||
-            user.resetPasswordExpires < new Date()
+            user.resetCode !==
+            cleanCode
         ) {
-
             return res.status(400).json({
                 success: false,
-                message: "Reset code has expired"
+                message:
+                    "Invalid reset code"
             });
         }
 
-        // ==========================================
-        // MARK RESET AS VERIFIED
-        // ==========================================
+        // ==================================================
+        // EXPIRATION
+        // ==================================================
 
-        user.resetPasswordVerified = true;
+        if (
+            !user.resetCodeExpires ||
+            user.resetCodeExpires <
+                new Date()
+        ) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Reset code has expired"
+            });
+        }
 
-        await user.save();
+        // ==================================================
+        // IMPORTANT
+        // Store temporary verification state
+        //
+        // We use resetCode itself as proof that
+        // the code was verified. It will be cleared
+        // only after password reset.
+        // ==================================================
 
         return res.status(200).json({
             success: true,
-            message: "Reset code verified successfully",
-            email: cleanEmail
+
+            message:
+                "Reset code verified successfully",
+
+            email:
+                cleanEmail
         });
 
     } catch (error) {
@@ -1123,28 +1497,29 @@ const verifyResetCode = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            message: error.message
+            message:
+                error.message
         });
     }
 };
+
 // ======================================================
 // RESET PASSWORD
+// POST /api/auth/reset-password
 // ======================================================
 
-const resetPassword = async (req, res) => {
+const resetPassword = async (
+    req,
+    res
+) => {
     try {
-
-        console.log("===== RESET PASSWORD =====");
 
         const {
             email,
+            resetCode,
             newPassword,
             confirmPassword
         } = req.body;
-
-        // ==========================================
-        // VALIDATION
-        // ==========================================
 
         if (
             !email ||
@@ -1158,44 +1533,58 @@ const resetPassword = async (req, res) => {
             });
         }
 
-        if (newPassword !== confirmPassword) {
-            return res.status(400).json({
-                success: false,
-                message: "Passwords do not match"
-            });
-        }
-
-        if (newPassword.length < 6) {
+        if (
+            newPassword !==
+            confirmPassword
+        ) {
             return res.status(400).json({
                 success: false,
                 message:
-                    "Password must be at least 6 characters"
+                    "Passwords do not match"
             });
         }
 
-        const cleanEmail = email.toLowerCase().trim();
+        if (
+            newPassword.length < 8
+        ) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    "Password must be at least 8 characters"
+            });
+        }
 
-        // ==========================================
-        // FIND EMPLOYEE
-        // ==========================================
+        const cleanEmail =
+            email.toLowerCase().trim();
 
-        const user = await User.findOne({
-            email: cleanEmail,
-            role: "employee"
-        });
+        const user =
+            await User.findOne({
+                email:
+                    cleanEmail,
+
+                role:
+                    "employee"
+            });
 
         if (!user) {
             return res.status(404).json({
                 success: false,
-                message: "Employee account not found"
+                message:
+                    "Employee account not found"
             });
         }
 
-        // ==========================================
-        // CHECK RESET VERIFICATION
-        // ==========================================
+        // ==================================================
+        // VERIFY RESET CODE AGAIN
+        // ==================================================
 
-        if (user.resetPasswordVerified !== true) {
+        if (
+            !resetCode ||
+            user.resetCode !==
+                resetCode
+                    .toString()
+                    .trim()
+        ) {
             return res.status(403).json({
                 success: false,
                 message:
@@ -1203,15 +1592,11 @@ const resetPassword = async (req, res) => {
             });
         }
 
-        // ==========================================
-        // CHECK EXPIRY
-        // ==========================================
-
         if (
-            !user.resetPasswordExpires ||
-            user.resetPasswordExpires < new Date()
+            !user.resetCodeExpires ||
+            user.resetCodeExpires <
+                new Date()
         ) {
-
             return res.status(400).json({
                 success: false,
                 message:
@@ -1219,22 +1604,28 @@ const resetPassword = async (req, res) => {
             });
         }
 
-        // ==========================================
-        // HASH NEW PASSWORD
-        // ==========================================
+        // ==================================================
+        // HASH PASSWORD
+        // ==================================================
 
         const hashedPassword =
-            await bcrypt.hash(newPassword, 10);
+            await bcrypt.hash(
+                newPassword,
+                10
+            );
 
-        user.password = hashedPassword;
+        user.password =
+            hashedPassword;
 
-        // ==========================================
+        // ==================================================
         // CLEAR RESET DATA
-        // ==========================================
+        // ==================================================
 
-        user.resetPasswordCode = null;
-        user.resetPasswordExpires = null;
-        user.resetPasswordVerified = false;
+        user.resetCode =
+            null;
+
+        user.resetCodeExpires =
+            null;
 
         await user.save();
 
@@ -1245,6 +1636,7 @@ const resetPassword = async (req, res) => {
 
         return res.status(200).json({
             success: true,
+
             message:
                 "Password reset successfully"
         });
@@ -1258,7 +1650,8 @@ const resetPassword = async (req, res) => {
 
         return res.status(500).json({
             success: false,
-            message: error.message
+            message:
+                error.message
         });
     }
 };

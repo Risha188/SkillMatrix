@@ -5,11 +5,39 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const connectDB = require("./config/db");
-const createDefaultAdmin = require("./utils/createDefaultAdmin");
 
-const employeeRoutes = require("./routes/employeeRoutes");
-const authRoutes = require("./routes/authRoutes");
-const adminRoutes = require("./routes/adminRoutes");
+// ==========================================
+// DEFAULT ADMIN
+// ==========================================
+
+const createDefaultAdmin =
+    require("./utils/createDefaultAdmin");
+
+// ==========================================
+// ROUTES
+// ==========================================
+
+const authRoutes =
+    require("./routes/authRoutes");
+
+const employeeRoutes =
+    require("./routes/employeeRoutes");
+
+const adminRoutes =
+    require("./routes/adminRoutes");
+
+const adminProjectRoutes =
+    require("./routes/adminProjectRoutes");
+
+const adminEmployeeRoutes =
+    require("./routes/adminEmployeeRoutes");
+
+const adminAssignmentRoutes =
+    require("./routes/adminAssignmentRoutes");
+
+// ==========================================
+// AUTH MIDDLEWARE
+// ==========================================
 
 const {
     protect,
@@ -17,10 +45,18 @@ const {
     employeeOnly
 } = require("./middleware/authMiddleware");
 
+// ==========================================
+// APP
+// ==========================================
+
 const app = express();
 
 // ==========================================
-// MIDDLEWARE
+// GLOBAL MIDDLEWARE
+// ==========================================
+
+// ==========================================
+// GLOBAL MIDDLEWARE
 // ==========================================
 
 app.use(cors());
@@ -33,20 +69,32 @@ app.use(
     })
 );
 
+// ==========================================
+// REQUEST LOGGER
+// ==========================================
 
+app.use((req, res, next) => {
+
+    console.log("");
+    console.log("=================================");
+    console.log("REQUEST RECEIVED");
+    console.log("METHOD:", req.method);
+    console.log("URL:", req.originalUrl);
+    console.log("=================================");
+
+    next();
+});
 // ==========================================
 // HOME / TEST ROUTE
 // ==========================================
 
 app.get("/", (req, res) => {
-
     res.status(200).json({
         success: true,
-        message: "Skill Matrix Backend is running"
+        message:
+            "Skill Matrix Backend is running"
     });
-
 });
-
 
 // ==========================================
 // AUTH ROUTES
@@ -57,9 +105,8 @@ app.use(
     authRoutes
 );
 
-
 // ==========================================
-// ADMIN ROUTES
+// ADMIN DASHBOARD
 // ==========================================
 
 app.use(
@@ -67,6 +114,63 @@ app.use(
     adminRoutes
 );
 
+// ==========================================
+// ADMIN PROJECTS
+// ==========================================
+//
+// POST   /api/admin/projects
+// GET    /api/admin/projects
+// GET    /api/admin/projects/:projectId
+// PUT    /api/admin/projects/:projectId
+// DELETE /api/admin/projects/:projectId
+//
+// ==========================================
+
+app.use(
+    "/api/admin",
+    adminProjectRoutes
+);
+
+// ==========================================
+// ADMIN EMPLOYEES
+// ==========================================
+
+app.use(
+    "/api/admin/employees",
+    adminEmployeeRoutes
+);
+
+// ==========================================
+// ADMIN ASSIGNED PROJECTS
+// ==========================================
+//
+// GET /api/admin/assigned-projects
+//
+// GET /api/admin/assigned-projects/:id/team
+//
+// PUT /api/admin/assigned-projects/:id/team
+//
+// ==========================================
+
+app.use(
+    "/api/admin/assigned-projects",
+    adminAssignmentRoutes
+);
+
+// ==========================================
+// OPTIONAL OLD ASSIGNMENT URL
+// ==========================================
+//
+// Keep this temporarily so any old frontend
+// code using /api/admin/assignments continues
+// to work.
+//
+// ==========================================
+
+app.use(
+    "/api/admin/assignments",
+    adminAssignmentRoutes
+);
 
 // ==========================================
 // EMPLOYEE ROUTES
@@ -77,7 +181,6 @@ app.use(
     employeeRoutes
 );
 
-
 // ==========================================
 // JWT ADMIN TEST
 // ==========================================
@@ -87,16 +190,15 @@ app.get(
     protect,
     adminOnly,
     (req, res) => {
-
         res.status(200).json({
             success: true,
-            message: "Admin access granted",
-            user: req.user
+            message:
+                "Admin access granted",
+            user:
+                req.user
         });
-
     }
 );
-
 
 // ==========================================
 // JWT EMPLOYEE TEST
@@ -107,16 +209,15 @@ app.get(
     protect,
     employeeOnly,
     (req, res) => {
-
         res.status(200).json({
             success: true,
-            message: "Employee access granted",
-            user: req.user
+            message:
+                "Employee access granted",
+            user:
+                req.user
         });
-
     }
 );
-
 
 // ==========================================
 // JWT PROTECTED TEST
@@ -126,16 +227,15 @@ app.get(
     "/api/auth/protected-test",
     protect,
     (req, res) => {
-
         res.status(200).json({
             success: true,
-            message: "JWT authentication is working",
-            user: req.user
+            message:
+                "JWT authentication is working",
+            user:
+                req.user
         });
-
     }
 );
-
 
 // ==========================================
 // AUTH TEST
@@ -144,29 +244,40 @@ app.get(
 app.get(
     "/api/auth/test",
     (req, res) => {
-
         res.status(200).json({
             success: true,
-            message: "Auth route is working"
+            message:
+                "Auth route is working"
         });
-
     }
 );
 
+// ==========================================
+// 404 HANDLER
+// ==========================================
+
+app.use(
+    (req, res) => {
+        res.status(404).json({
+            success: false,
+            message:
+                `Route not found: ${req.method} ${req.originalUrl}`
+        });
+    }
+);
 
 // ==========================================
-// SERVER START
+// SERVER CONFIGURATION
 // ==========================================
 
-const PORT = process.env.PORT || 5000;
-
+const PORT =
+    process.env.PORT || 5000;
 
 // ==========================================
 // START SERVER
 // ==========================================
 
 const startServer = async () => {
-
     try {
 
         // ======================================
@@ -176,16 +287,22 @@ const startServer = async () => {
         await connectDB();
 
         console.log(
+            "================================="
+        );
+
+        console.log(
             "✅ MongoDB connected successfully"
         );
 
+        console.log(
+            "================================="
+        );
 
         // ======================================
         // CREATE DEFAULT ADMIN
         // ======================================
 
         await createDefaultAdmin();
-
 
         // ======================================
         // START EXPRESS SERVER
@@ -220,7 +337,6 @@ const startServer = async () => {
         process.exit(1);
     }
 };
-
 
 // ==========================================
 // START APPLICATION

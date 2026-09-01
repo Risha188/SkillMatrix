@@ -42,9 +42,7 @@ const BDM = () => {
             try {
 
                 const employeeId =
-                    localStorage.getItem(
-                        "employeeId"
-                    );
+    sessionStorage.getItem("employeeId");
 
                 if (!employeeId) {
                     console.log(
@@ -92,18 +90,18 @@ const BDM = () => {
                                 bdm.languagesKnown
                             )
                                 ? bdm.languagesKnown.join(
-                                      ", "
-                                  )
+                                    ", "
+                                )
                                 : bdm.languagesKnown ||
-                                  "",
+                                "",
 
                         hobbies:
                             Array.isArray(
                                 bdm.hobbies
                             )
                                 ? bdm.hobbies.join(
-                                      ", "
-                                  )
+                                    ", "
+                                )
                                 : bdm.hobbies || "",
 
                         areasOfInterest:
@@ -111,10 +109,10 @@ const BDM = () => {
                                 bdm.areasOfInterest
                             )
                                 ? bdm.areasOfInterest.join(
-                                      ", "
-                                  )
+                                    ", "
+                                )
                                 : bdm.areasOfInterest ||
-                                  "",
+                                "",
 
                         keyStrengths:
                             bdm.keyStrengths || "",
@@ -130,7 +128,7 @@ const BDM = () => {
                 console.error(
                     "Error loading BDM:",
                     error.response?.data ||
-                        error.message
+                    error.message
                 );
 
             } finally {
@@ -534,9 +532,7 @@ const BDM = () => {
             setSaving(true);
 
             const employeeId =
-                localStorage.getItem(
-                    "employeeId"
-                );
+                sessionStorage.getItem("employeeId")
 
             if (!employeeId) {
 
@@ -651,8 +647,17 @@ const BDM = () => {
                     "bdm"
                 );
 
+                // ==========================================
+                // PROFILE COMPLETION
+                // Go back to Employee Dashboard
+                // Keep the employee logged in.
+                // ==========================================
+
                 navigate(
-                    "/employee/declaration"
+                    "/employee/dashboard",
+                    {
+                        replace: true,
+                    }
                 );
             }
 
@@ -661,7 +666,7 @@ const BDM = () => {
             console.error(
                 "BDM Save Error:",
                 error.response?.data ||
-                    error.message
+                error.message
             );
 
             alert(
@@ -703,7 +708,7 @@ const BDM = () => {
     if (loading) {
 
         return (
-            <div className="flex min-h-[500px] items-center justify-center">
+            <div className="flex min-h-125 items-center justify-center">
 
                 <p className="text-gray-500">
                     Loading BDM details...
@@ -718,20 +723,20 @@ const BDM = () => {
     // ==========================================
 
     const inputClass =
-        "w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+        "w-full min-w-0 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
     const errorInputClass =
-        "w-full rounded-lg border border-red-500 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100";
+        "w-full min-w-0 rounded-lg border border-red-500 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100";
 
     return (
-        <div className="min-h-screen bg-gray-50 px-6 py-8">
+        <div className="min-h-screen w-full overflow-x-hidden bg-gray-50 px-3 py-5 sm:px-4 sm:py-6 md:px-6 md:py-8">
 
-            <div className="mx-auto max-w-5xl">
+            <div className="mx-auto w-full max-w-5xl">
 
                 {/* Header */}
                 <div className="mb-8">
 
-                    <h1 className="text-2xl font-bold text-gray-800">
+                    <h1 className="text-xl font-bold text-gray-800 sm:text-2xl">
                         BDM Details
                     </h1>
 
@@ -751,7 +756,7 @@ const BDM = () => {
                     {/* Header */}
                     <div className="border-b border-gray-200 px-6 py-5">
 
-                        <h2 className="text-lg font-semibold text-gray-800">
+                        <h2 className="text-base font-semibold text-gray-800 sm:text-lg">
                             Additional Skills & Professional Qualities
                         </h2>
 
@@ -759,7 +764,7 @@ const BDM = () => {
 
                     <div className="p-6">
 
-                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 md:gap-6">
 
                             {/* ================================= */}
                             {/* NON TECHNICAL SKILLS */}
@@ -771,38 +776,28 @@ const BDM = () => {
                                     Non-Technical Skills
                                 </label>
 
-                                <div className="flex gap-3">
-
+                                <div className="flex w-full items-center gap-3">
                                     <input
                                         type="text"
                                         value={skillInput}
-                                        onChange={(e) =>
-                                            setSkillInput(
-                                                e.target.value
-                                            )
-                                        }
-                                        onKeyDown={
-                                            handleSkillKeyDown
-                                        }
+                                        onChange={(e) => setSkillInput(e.target.value)}
+                                        onKeyDown={handleSkillKeyDown}
                                         placeholder="Communication, Leadership, Teamwork"
-                                        maxLength={200}
+                                        maxLength={150}
                                         className={
                                             errors.nonTechnicalSkills
-                                                ? errorInputClass
-                                                : inputClass
+                                                ? `${errorInputClass} h-11`
+                                                : `${inputClass} h-11`
                                         }
                                     />
 
                                     <button
                                         type="button"
-                                        onClick={
-                                            handleAddSkill
-                                        }
-                                        className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+                                        onClick={handleAddSkill}
+                                        className="flex h-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 cursor-pointer"
                                     >
                                         Add Skill
                                     </button>
-
                                 </div>
 
                                 {errors.nonTechnicalSkills && (
@@ -818,43 +813,43 @@ const BDM = () => {
                                     .nonTechnicalSkills
                                     .length > 0 && (
 
-                                    <div className="mt-4 flex flex-wrap gap-2">
+                                        <div className="mt-4 flex flex-wrap gap-2">
 
-                                        {bdmData
-                                            .nonTechnicalSkills
-                                            .map(
-                                                (
-                                                    skill,
-                                                    index
-                                                ) => (
+                                            {bdmData
+                                                .nonTechnicalSkills
+                                                .map(
+                                                    (
+                                                        skill,
+                                                        index
+                                                    ) => (
 
-                                                    <div
-                                                        key={`${skill}-${index}`}
-                                                        className="flex items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-sm text-blue-700"
-                                                    >
-
-                                                        <span>
-                                                            {skill}
-                                                        </span>
-
-                                                        <button
-                                                            type="button"
-                                                            onClick={() =>
-                                                                handleRemoveSkill(
-                                                                    skill
-                                                                )
-                                                            }
-                                                            className="font-bold text-red-500 hover:text-red-700"
+                                                        <div
+                                                            key={`${skill}-${index}`}
+                                                            className="flex items-center gap-2 rounded-full bg-blue-50 px-4 py-2 text-sm text-blue-700"
                                                         >
-                                                            ×
-                                                        </button>
 
-                                                    </div>
-                                                )
-                                            )}
+                                                            <span>
+                                                                {skill}
+                                                            </span>
 
-                                    </div>
-                                )}
+                                                            <button
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    handleRemoveSkill(
+                                                                        skill
+                                                                    )
+                                                                }
+                                                                className="font-bold text-red-500 hover:text-red-700"
+                                                            >
+                                                                ×
+                                                            </button>
+
+                                                        </div>
+                                                    )
+                                                )}
+
+                                        </div>
+                                    )}
 
                             </div>
 
@@ -1055,7 +1050,7 @@ const BDM = () => {
                     </div>
 
                     {/* Buttons */}
-                    <div className="flex justify-end gap-3 border-t border-gray-200 bg-gray-50 px-6 py-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:justify-end gap-3 border-t border-gray-200 bg-gray-50 px-6 py-4">
 
                         <button
                             type="button"
@@ -1069,11 +1064,11 @@ const BDM = () => {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="w-full rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white sm:w-auto hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             {saving
                                 ? "Saving..."
-                                : "Save & Next"}
+                                : "submit"}
                         </button>
 
                     </div>

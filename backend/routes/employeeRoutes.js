@@ -9,6 +9,7 @@ console.log("Employee routes loaded");
 const {
     createEmployee,
     getEmployee,
+    updatePersonalDetails,
     updateEducation,
     updateAddress,
     updateSkills,
@@ -25,13 +26,11 @@ const {
     employeeOnly
 } = require("../middleware/authMiddleware");
 
-
 // ==========================================
 // CREATE ROUTER
 // ==========================================
 
 const router = express.Router();
-
 
 // ==========================================
 // CREATE EMPLOYEE
@@ -45,6 +44,17 @@ router.post(
     createEmployee
 );
 
+// ==========================================
+// UPDATE PERSONAL DETAILS
+// PUT /api/employees/:employeeId/personal
+// ==========================================
+
+router.put(
+    "/:employeeId/personal",
+    protect,
+    employeeOnly,
+    updatePersonalDetails
+);
 
 // ==========================================
 // UPDATE EDUCATION
@@ -58,7 +68,6 @@ router.put(
     updateEducation
 );
 
-
 // ==========================================
 // UPDATE ADDRESS
 // PUT /api/employees/:employeeId/address
@@ -70,7 +79,6 @@ router.put(
     employeeOnly,
     updateAddress
 );
-
 
 // ==========================================
 // UPDATE SKILLS
@@ -84,7 +92,6 @@ router.put(
     updateSkills
 );
 
-
 // ==========================================
 // UPDATE WORK EXPERIENCE
 // PUT /api/employees/:employeeId/work-experience
@@ -96,7 +103,6 @@ router.put(
     employeeOnly,
     updateWorkExperience
 );
-
 
 // ==========================================
 // UPDATE BDM DETAILS
@@ -110,7 +116,6 @@ router.put(
     updateBDMDetails
 );
 
-
 // ==========================================
 // GET EMPLOYEE
 // GET /api/employees/:employeeId
@@ -122,7 +127,6 @@ router.get(
     employeeOnly,
     getEmployee
 );
-
 
 // ==========================================
 // EXPORT ROUTER

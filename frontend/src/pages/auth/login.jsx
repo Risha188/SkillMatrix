@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { loginUser } from "../../service/authService";
 
 const Login = () => {
     const navigate = useNavigate();
-    const location = useLocation();
 
     const [showPassword, setShowPassword] = useState(false);
 
@@ -29,96 +28,261 @@ const Login = () => {
         `${provider} login is not connected yet.`
     );
 };
-
-   const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const email = formData.email.trim().toLowerCase();
+    const password = formData.password;
+
+    if (!email || !password) {
+        alert("Email and password are required.");
+        return;
+    }
+
     try {
+        console.log("=================================");
+        console.log("EMPLOYEE LOGIN REQUEST");
+        console.log("Email:", email);
+        console.log("=================================");
+
         const response = await loginUser({
-            email: formData.email.trim(),
-            password: formData.password
+            email,
+            password,
         });
 
-        console.log("Login Response:", response.data);
+        const data = response?.data || {};
 
-        if (response.data.success) {
-            const { token, user } = response.data;
+        console.log("LOGIN RESPONSE:", data);
 
-            // ==========================================
-            // SAVE REAL AUTHENTICATION DATA
-            // ==========================================
+        // ==================================================
+        // LOGIN RESPONSE CHECK
+        // ==================================================
 
-            localStorage.setItem("token", token);
-
-            localStorage.setItem(
-                "user",
-                JSON.stringify(user)
+        if (!data.success) {
+            alert(
+                data.message ||
+                    "Login failed. Please check your email and password."
             );
-
-            localStorage.setItem(
-                "userId",
-                user.id
-            );
-
-            localStorage.setItem(
-                "userEmail",
-                user.email
-            );
-
-            localStorage.setItem(
-                "userRole",
-                user.role
-            );
-
-            // Keep this only if some old dashboard
-            // code still uses it
-            localStorage.setItem(
-                "isAuthenticated",
-                "true"
-            );
-
-            // ==========================================
-            // EMPLOYEE LOGIN
-            // ==========================================
-
-            if (user.role === "employee") {
-                navigate(
-                    "/employee/dashboard",
-                    { replace: true }
-                );
-                return;
-            }
-
-            // ==========================================
-            // ADMIN LOGIN
-            // ==========================================
-
-            if (user.role === "admin") {
-                navigate(
-                    "/admin/dashboard",
-                    { replace: true }
-                );
-                return;
-            }
-
-            // Unknown role
-            alert("Invalid user role.");
+            return;
         }
 
-    } catch (error) {
+        const token = data.token;
+        const user = data.user || data.userData || {};
 
+        if (!token) {
+            console.error("❌ No JWT token returned by backend.");
+            alert(
+                "Login succeeded, but the server did not return an authentication token."
+            );
+            return;
+        }
+
+        // ==================================================
+        // NORMALIZE ROLE
+        // ==================================================
+
+        const userRole = String(
+            user.role ||
+                data.role ||
+                ""
+        )
+            .trim()
+            .toLowerCase();
+
+        console.log("LOGIN ROLE:", userRole);
+
+        // ==================================================
+        // ADMIN ACCOUNT ON EMPLOYEE LOGIN PAGE
+        // ==================================================
+
+        if (userRole === "admin") {
+            console.log(
+                "⚠️ Admin account used on Employee Login page."
+            );
+
+            // Remove ONLY employee session.
+            sessionStorage.removeItem("employeeToken");
+            sessionStorage.removeItem("employeeUser");
+            sessionStorage.removeItem("employeeUserId");
+            sessionStorage.removeItem("employeeUserEmail");
+            sessionStorage.removeItem("employeeUserRole");
+            sessionStorage.removeItem("employeeAuthenticated");
+            sessionStorage.removeItem("employeeId");
+
+            alert(
+                "This is the Employee Login page. Please use the Admin Login page for administrator access."
+            );
+
+            navigate("/admin", {
+                replace: true,
+            });
+
+            return;
+        }
+
+        // ==================================================
+        // EMPLOYEE ACCOUNT
+        // ==================================================
+
+        if (userRole !== "employee") {
+            console.error(
+                "❌ Invalid/unknown user role:",
+                userRole
+            );
+
+            alert(
+                "This account does not have employee access."
+            );
+
+            return;
+        }
+
+        // ==================================================
+        // EMPLOYEE ID
+        // ==================================================
+        //
+        // Support all response shapes used by the backend.
+        // Prefer employee.employeeId, then top-level employeeId,
+        // then user.employeeId.
+        //
+        // ==================================================
+
+        const employeeObject =
+            data.employee ||
+            data.employeeData ||
+            {};
+
+        const employeeId =
+            employeeObject.employeeId ||
+            employeeObject.empId ||
+            data.employeeId ||
+            data.empId ||
+            user.employeeId ||
+            user.empId ||
+            null;
+
+        const userId =
+            user.id ||
+            user._id ||
+            data.userId ||
+            data.id ||
+            "";
+
+        console.log(
+            "Employee ID after login:",
+            employeeId
+        );
+
+        console.log(
+            "User ID after login:",
+            userId
+        );
+
+        // ==================================================
+        // SAVE EMPLOYEE SESSION
+        // ==================================================
+        //
+        // IMPORTANT:
+        // Employee uses employeeToken.
+        // Admin uses adminToken.
+        //
+        // Never overwrite adminToken here.
+        //
+        // ==================================================
+
+        sessionStorage.setItem(
+            "employeeToken",
+            token
+        );
+
+        sessionStorage.setItem(
+            "employeeUser",
+            JSON.stringify(user)
+        );
+
+        sessionStorage.setItem(
+            "employeeUserId",
+            String(userId)
+        );
+
+        sessionStorage.setItem(
+            "employeeUserEmail",
+            user.email || email
+        );
+
+        sessionStorage.setItem(
+            "employeeUserRole",
+            "employee"
+        );
+
+        sessionStorage.setItem(
+            "employeeAuthenticated",
+            "true"
+        );
+
+        // Save employeeId only when the backend actually returns it.
+        // Do not save "undefined" or "null".
+        if (employeeId) {
+            sessionStorage.setItem(
+                "employeeId",
+                String(employeeId)
+            );
+        } else {
+            sessionStorage.removeItem("employeeId");
+
+            console.warn(
+                "⚠️ Backend did not return employeeId."
+            );
+        }
+
+        // ==================================================
+        // REMOVE OLD GENERIC EMPLOYEE STORAGE
+        // ==================================================
+        //
+        // Do NOT remove adminToken/adminUser/etc.
+        //
+        // ==================================================
+
+        localStorage.removeItem("token");
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("user");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("userRole");
+        localStorage.removeItem("employeeId");
+        localStorage.removeItem("isAuthenticated");
+
+        console.log("=================================");
+        console.log("✅ EMPLOYEE LOGIN SUCCESS");
+        console.log("Employee ID:", employeeId || "Not returned");
+        console.log("User ID:", userId || "Not returned");
+        console.log("Employee token saved in sessionStorage");
+        console.log("Admin session was NOT changed");
+        console.log("=================================");
+
+        // ==================================================
+        // GO TO EMPLOYEE DASHBOARD
+        // ==================================================
+
+        navigate("/employee/dashboard", {
+            replace: true,
+        });
+
+    } catch (error) {
         console.error(
-            "Login Error:",
+            "❌ Employee Login Error:",
             error.response?.data || error
         );
 
-        alert(
+        const message =
             error.response?.data?.message ||
-            "Invalid email or password"
-        );
+            error.message ||
+            "Unable to login. Please check your email and password.";
+
+        alert(message);
     }
 };
-
     return (
 
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 flex items-center justify-center px-4 py-8">
@@ -137,8 +301,12 @@ const Login = () => {
 
                             <div className="flex items-center gap-3 mb-10">
 
-                                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-2xl font-bold">
-                                    SM
+                                <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center overflow-hidden shadow">
+                                    <img
+                                        src="/pcs_logo.png"
+                                        alt="PCS Global logo"
+                                        className="h-full w-full object-contain"
+                                    />
                                 </div>
 
                                 <div>
@@ -219,8 +387,12 @@ const Login = () => {
 
                         <div className="md:hidden text-center mb-7">
 
-                            <div className="inline-flex w-12 h-12 rounded-xl bg-blue-600 text-white items-center justify-center font-bold text-xl mb-2">
-                                SM
+                            <div className="inline-flex w-12 h-12 rounded-xl bg-white items-center justify-center overflow-hidden shadow mb-2">
+                                <img
+                                    src="/pcs_logo.png"
+                                    alt="PCS Global logo"
+                                    className="h-full w-full object-contain"
+                                />
                             </div>
 
                             <h1 className="text-2xl font-bold text-slate-800">
