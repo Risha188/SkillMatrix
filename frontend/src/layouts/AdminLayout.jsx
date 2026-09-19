@@ -18,62 +18,41 @@ const AdminLayout = () => {
         logoutAdmin,
     } = useAdmin();
 
-    // =========================================================
-    // LOGOUT MODAL STATE
-    // =========================================================
-
     const [showLogoutModal, setShowLogoutModal] =
         useState(false);
 
+    const [isMobileOpen, setIsMobileOpen] =
+        useState(false);
+
     // =========================================================
-    // OPEN LOGOUT MODAL
+    // LOGOUT
     // =========================================================
 
     const handleLogout = () => {
         setShowLogoutModal(true);
     };
 
-    // =========================================================
-    // CONFIRM LOGOUT
-    // =========================================================
-
     const confirmLogout = () => {
         // Clear AdminContext session
         logoutAdmin();
 
-        // =====================================================
-        // CLEAR AUTHENTICATION TOKENS
-        // =====================================================
-
+        // Clear authentication tokens
         localStorage.removeItem("token");
         localStorage.removeItem("authToken");
         localStorage.removeItem("accessToken");
         localStorage.removeItem("skillmatrix_token");
 
-        // =====================================================
-        // CLEAR ADMIN / USER INFORMATION
-        // =====================================================
-
+        // Clear stored admin/user information
         localStorage.removeItem("admin");
         localStorage.removeItem("adminUser");
         localStorage.removeItem("user");
         localStorage.removeItem("userId");
         localStorage.removeItem("userEmail");
         localStorage.removeItem("userRole");
-        localStorage.removeItem("employeeId");
         localStorage.removeItem("isAuthenticated");
-        localStorage.removeItem("isAdmin");
-        localStorage.removeItem("adminId");
-
-        // =====================================================
-        // CLOSE MODAL
-        // =====================================================
 
         setShowLogoutModal(false);
-
-        // =====================================================
-        // GO TO ADMIN LOGIN
-        // =====================================================
+        setIsMobileOpen(false);
 
         navigate("/admin/login", {
             replace: true,
@@ -81,11 +60,11 @@ const AdminLayout = () => {
     };
 
     // =========================================================
-    // CLOSE LOGOUT MODAL
+    // MOBILE NAVIGATION
     // =========================================================
 
-    const cancelLogout = () => {
-        setShowLogoutModal(false);
+    const handleNavigation = () => {
+        setIsMobileOpen(false);
     };
 
     // =========================================================
@@ -120,49 +99,289 @@ const AdminLayout = () => {
             "/admin/projectdetails"
         ) ||
         location.pathname.includes(
-            "/admin/reassign-project"
+            "/admin/reassignproject"
         );
 
     // =========================================================
-    // RENDER
+    // NAVIGATION LINK CLASS
     // =========================================================
+
+    const navLinkClass = ({ isActive }) =>
+        `flex items-center rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
+            isActive
+                ? "bg-blue-600 text-white shadow-lg shadow-blue-900/30"
+                : "text-slate-300 hover:bg-slate-800 hover:text-white"
+        }`;
 
     return (
         <div className="min-h-screen bg-slate-100">
 
             {/* =================================================
+                MOBILE TOP BAR
+            ================================================= */}
+
+            <header
+                className="
+                    fixed
+                    left-0
+                    right-0
+                    top-0
+                    z-40
+                    flex
+                    h-16
+                    items-center
+                    justify-between
+                    border-b
+                    border-slate-700
+                    bg-slate-900
+                    px-4
+                    text-white
+                    shadow-lg
+                    md:hidden
+                "
+            >
+                {/* MOBILE BRAND */}
+                <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow-lg">
+                        <img
+                            src="/pcs_logo.png"
+                            alt="PCS Global Logo"
+                            className="h-full w-full object-contain p-1"
+                        />
+                    </div>
+
+                    <div className="min-w-0">
+                        <h1
+                            className="
+                                truncate
+                                text-base
+                                font-bold
+                                text-white
+                            "
+                        >
+                            Admin Panel
+                        </h1>
+
+                        <p
+                            className="
+                                truncate
+                                text-[10px]
+                                text-slate-400
+                            "
+                        >
+                            SkillMatrix
+                        </p>
+                    </div>
+                </div>
+
+                {/* HAMBURGER */}
+
+                <button
+                    type="button"
+                    aria-label="Open admin menu"
+                    aria-expanded={isMobileOpen}
+                    onClick={() =>
+                        setIsMobileOpen(true)
+                    }
+                    className="
+                        flex
+                        h-10
+                        w-10
+                        shrink-0
+                        items-center
+                        justify-center
+                        rounded-xl
+                        bg-blue-600
+                        text-xl
+                        text-white
+                        transition
+                        hover:bg-blue-700
+                        active:scale-95
+                    "
+                >
+                    ☰
+                </button>
+
+            </header>
+
+
+            {/* =================================================
+                MOBILE OVERLAY
+            ================================================= */}
+
+            {isMobileOpen && (
+                <button
+                    type="button"
+                    aria-label="Close admin menu"
+                    onClick={() =>
+                        setIsMobileOpen(false)
+                    }
+                    className="
+                        fixed
+                        inset-0
+                        z-40
+                        bg-black/50
+                        md:hidden
+                    "
+                />
+            )}
+
+
+            {/* =================================================
                 SIDEBAR
             ================================================= */}
 
-            <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col bg-slate-900 text-white shadow-2xl">
+            <aside
+                className={`
+                    fixed
+                    left-0
+                    top-0
+                    z-50
+                    flex
+                    h-screen
+                    w-72
+                    flex-col
+                    bg-slate-900
+                    text-white
+                    shadow-2xl
+                    transition-transform
+                    duration-300
+                    ease-in-out
+
+                    md:w-64
+                    md:translate-x-0
+
+                    ${
+                        isMobileOpen
+                            ? "translate-x-0"
+                            : "-translate-x-full"
+                    }
+                `}
+            >
 
                 {/* =================================================
                     BRAND
                 ================================================= */}
 
-                <div className="flex h-20 shrink-0 items-center border-b border-slate-700 px-6">
+                <div
+                    className="
+                        flex
+                        h-20
+                        shrink-0
+                        items-center
+                        justify-between
+                        gap-3
+                        border-b
+                        border-slate-700
+                        px-5
+                    "
+                >
 
-                    <div>
-                        <h1 className="text-xl font-bold text-white">
-                            Admin Panel
-                        </h1>
+                    <div
+                        className="
+                            flex
+                            min-w-0
+                            items-center
+                            gap-3
+                        "
+                    >
 
-                        <p className="mt-1 text-xs text-slate-400">
-                            SkillMatrix
-                        </p>
+                     <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow">
+    <img
+        src="/pcs_logo.png"
+        alt="PCS Global Logo"
+        className="h-full w-full object-contain p-1"
+    />
+</div>
+
+                        <div className="min-w-0">
+
+                            <h1
+                                className="
+                                    truncate
+                                    text-lg
+                                    font-bold
+                                    text-white
+                                "
+                            >
+                                Admin Panel
+                            </h1>
+
+                            <p
+                                className="
+                                    mt-1
+                                    truncate
+                                    text-xs
+                                    text-slate-400
+                                "
+                            >
+                                SkillMatrix
+                            </p>
+
+                        </div>
+
                     </div>
 
+
+                    {/* MOBILE CLOSE BUTTON */}
+
+                    <button
+                        type="button"
+                        aria-label="Close admin menu"
+                        onClick={() =>
+                            setIsMobileOpen(false)
+                        }
+                        className="
+                            flex
+                            h-9
+                            w-9
+                            shrink-0
+                            items-center
+                            justify-center
+                            rounded-lg
+                            text-xl
+                            text-slate-300
+                            transition
+                            hover:bg-slate-800
+                            hover:text-white
+                            md:hidden
+                        "
+                    >
+                        ×
+                    </button>
+
                 </div>
+
 
                 {/* =================================================
                     NAVIGATION
                 ================================================= */}
 
-                <nav className="flex-1 overflow-y-auto px-3 py-6">
+                <nav
+                    className="
+                        flex-1
+                        overflow-y-auto
+                        px-3
+                        py-5
+                        sm:px-4
+                        sm:py-6
+                    "
+                >
 
-                    <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <p
+                        className="
+                            mb-3
+                            px-3
+                            text-xs
+                            font-semibold
+                            uppercase
+                            tracking-wider
+                            text-slate-500
+                        "
+                    >
                         Main Menu
                     </p>
+
 
                     <div className="space-y-1">
 
@@ -170,12 +389,11 @@ const AdminLayout = () => {
                             <NavLink
                                 key={item.path}
                                 to={item.path}
-                                className={({ isActive }) =>
-                                    `block rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
-                                        isActive
-                                            ? "bg-blue-600 text-white shadow-lg shadow-blue-900/30"
-                                            : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                                    }`
+                                onClick={
+                                    handleNavigation
+                                }
+                                className={
+                                    navLinkClass
                                 }
                             >
                                 {item.name}
@@ -184,6 +402,7 @@ const AdminLayout = () => {
 
                     </div>
 
+
                     {/* =================================================
                         PROJECT NAVIGATION
                     ================================================= */}
@@ -191,33 +410,43 @@ const AdminLayout = () => {
                     {isProjectPage && (
                         <div className="mt-8">
 
-                            <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                            <p
+                                className="
+                                    mb-3
+                                    px-3
+                                    text-xs
+                                    font-semibold
+                                    uppercase
+                                    tracking-wider
+                                    text-slate-500
+                                "
+                            >
                                 Project
                             </p>
+
 
                             <div className="space-y-1">
 
                                 <NavLink
                                     to="/admin/allprojects"
-                                    className={({ isActive }) =>
-                                        `block rounded-xl px-4 py-3 text-sm font-medium transition ${
-                                            isActive
-                                                ? "bg-blue-600 text-white"
-                                                : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                                        }`
+                                    onClick={
+                                        handleNavigation
+                                    }
+                                    className={
+                                        navLinkClass
                                     }
                                 >
                                     All Projects
                                 </NavLink>
 
+
                                 <NavLink
                                     to="/admin/assignedproject"
-                                    className={({ isActive }) =>
-                                        `block rounded-xl px-4 py-3 text-sm font-medium transition ${
-                                            isActive
-                                                ? "bg-blue-600 text-white"
-                                                : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                                        }`
+                                    onClick={
+                                        handleNavigation
+                                    }
+                                    className={
+                                        navLinkClass
                                     }
                                 >
                                     Assigned Projects
@@ -230,22 +459,77 @@ const AdminLayout = () => {
 
                 </nav>
 
+
                 {/* =================================================
                     ADMIN INFORMATION
                 ================================================= */}
 
-                <div className="shrink-0 border-t border-slate-700 p-4">
+                <div
+                    className="
+                        shrink-0
+                        border-t
+                        border-slate-700
+                        p-3
+                        sm:p-4
+                    "
+                >
 
-                  
+                    <div
+                        className="
+                            mb-3
+                            rounded-xl
+                            bg-slate-800
+                            p-3
+                        "
+                    >
 
-                    {/* =================================================
-                        LOGOUT BUTTON
-                    ================================================= */}
+                        <p
+                            className="
+                                truncate
+                                text-sm
+                                font-semibold
+                                text-white
+                            "
+                        >
+                            {currentAdmin?.name ||
+                                "Administrator"}
+                        </p>
+
+                        <p
+                            className="
+                                mt-1
+                                truncate
+                                text-xs
+                                text-slate-400
+                            "
+                        >
+                            {currentAdmin?.isDefault
+                                ? "System Administrator"
+                                : "Administrator"}
+                        </p>
+
+                    </div>
+
+
+                    {/* LOGOUT */}
 
                     <button
                         type="button"
                         onClick={handleLogout}
-                        className="w-full rounded-xl bg-red-500/10 px-4 py-3 text-sm font-medium text-red-400 transition-all duration-200 hover:bg-red-500 hover:text-white"
+                        className="
+                            w-full
+                            rounded-xl
+                            bg-red-500/10
+                            px-4
+                            py-3
+                            text-sm
+                            font-medium
+                            text-red-400
+                            transition-all
+                            duration-200
+                            hover:bg-red-500
+                            hover:text-white
+                        "
                     >
                         Logout
                     </button>
@@ -254,9 +538,10 @@ const AdminLayout = () => {
 
             </aside>
 
-            {/* =====================================================
+
+            {/* =================================================
                 LOGOUT CONFIRMATION MODAL
-            ===================================================== */}
+            ================================================= */}
 
             {showLogoutModal && (
                 <div
@@ -273,24 +558,19 @@ const AdminLayout = () => {
                     "
                 >
 
-                    {/* =================================================
-                        MODAL
-                    ================================================= */}
-
                     <div
                         className="
                             w-full
                             max-w-md
                             rounded-2xl
                             bg-white
-                            p-6
+                            p-5
                             shadow-2xl
+                            sm:p-6
                         "
                     >
 
-                        {/* =================================================
-                            ICON
-                        ================================================= */}
+                        {/* ICON */}
 
                         <div
                             className="
@@ -307,7 +587,11 @@ const AdminLayout = () => {
 
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="h-7 w-7 text-red-600"
+                                className="
+                                    h-7
+                                    w-7
+                                    text-red-600
+                                "
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -322,9 +606,8 @@ const AdminLayout = () => {
 
                         </div>
 
-                        {/* =================================================
-                            TITLE
-                        ================================================= */}
+
+                        {/* TITLE */}
 
                         <h2
                             className="
@@ -338,9 +621,8 @@ const AdminLayout = () => {
                             Logout
                         </h2>
 
-                        {/* =================================================
-                            MESSAGE
-                        ================================================= */}
+
+                        {/* MESSAGE */}
 
                         <p
                             className="
@@ -351,29 +633,32 @@ const AdminLayout = () => {
                                 text-slate-500
                             "
                         >
-                            Are you sure you want to logout
-                            from the administration panel?
+                            Are you sure you want to
+                            logout from the
+                            administration panel?
                         </p>
 
-                        {/* =================================================
-                            BUTTONS
-                        ================================================= */}
+
+                        {/* BUTTONS */}
 
                         <div
                             className="
                                 mt-6
-                                flex
+                                grid
+                                grid-cols-1
                                 gap-3
+                                sm:grid-cols-2
                             "
                         >
 
-                            {/* CANCEL */}
-
                             <button
                                 type="button"
-                                onClick={cancelLogout}
+                                onClick={() =>
+                                    setShowLogoutModal(
+                                        false
+                                    )
+                                }
                                 className="
-                                    flex-1
                                     rounded-xl
                                     border
                                     border-slate-200
@@ -389,13 +674,11 @@ const AdminLayout = () => {
                                 Cancel
                             </button>
 
-                            {/* YES, LOGOUT */}
 
                             <button
                                 type="button"
                                 onClick={confirmLogout}
                                 className="
-                                    flex-1
                                     rounded-xl
                                     bg-red-600
                                     px-4
@@ -417,20 +700,36 @@ const AdminLayout = () => {
                 </div>
             )}
 
+
             {/* =================================================
                 MAIN CONTENT
             ================================================= */}
 
-            <div className="ml-64 min-h-screen">
+            <div
+                className="
+                    min-h-screen
+                    ml-0
+                    pt-16
+                    md:ml-64
+                    md:pt-0
+                "
+            >
 
                 <main
                     className="
-                        min-h-[calc(100vh-5rem)]
-                        p-6
-                        md:p-8
+                        min-h-[calc(100vh-4rem)]
+                        w-full
+                        overflow-x-hidden
+                        p-4
+                        sm:p-5
+                        md:min-h-screen
+                        md:p-6
+                        lg:p-8
                     "
                 >
+
                     <Outlet />
+
                 </main>
 
             </div>

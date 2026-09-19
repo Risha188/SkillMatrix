@@ -14,6 +14,27 @@ const getUserId = (req) => {
     );
 };
 
+
+
+const generateUniqueEmployeeId = async () => {
+    let employeeId;
+    let exists = true;
+
+    while (exists) {
+        const randomNumber = Math.floor(
+            100000 + Math.random() * 900000
+        );
+
+        employeeId = `EMP${randomNumber}`;
+
+        exists = await Employee.exists({
+            employeeId
+        });
+    }
+
+    return employeeId;
+};
+
 // ==========================================================
 // GET LOGIN EMAIL FROM USER
 // ==========================================================
@@ -258,6 +279,19 @@ const createEmployee = async (req, res) => {
 
         if (employee) {
 
+            // --------------------------------------------------
+            // ENSURE EXISTING EMPLOYEE HAS EMP###### FORMAT
+            // --------------------------------------------------
+            // Keep a valid existing ID unchanged. If an old ID such
+            // as EMP0001 is found, generate a new unique 6-digit ID.
+            const validEmployeeId =
+                /^EMP\d{6}$/.test(String(employee.employeeId || ""));
+
+            if (!validEmployeeId) {
+                employee.employeeId =
+                    await generateUniqueEmployeeId();
+            }
+
             employee.email =
                 loginEmail;
 
@@ -344,13 +378,7 @@ const createEmployee = async (req, res) => {
         // GENERATE EMPLOYEE ID
         // --------------------------------------------------
 
-        const employeeCount =
-            await Employee.countDocuments();
-
-        const employeeId =
-            `EMP${String(
-                employeeCount + 1
-            ).padStart(4, "0")}`;
+       const employeeId = await generateUniqueEmployeeId();
 
         // --------------------------------------------------
         // CREATE EMPLOYEE

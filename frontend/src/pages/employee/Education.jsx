@@ -1,23 +1,267 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { markSectionCompleted } from "../../utils/profileProgress.js";
 import { useNavigate } from "react-router-dom";
 import API from "../../utils/api.js";
 import { useEmployeeProfile } from "../../context/EmployeeProfileContext";
 
 const Education = () => {
-
   const navigate = useNavigate();
 
   const { profile, updateSection } = useEmployeeProfile();
 
   const [education, setEducation] = useState(
-    profile.education
+    profile.education || {
+      highestQualification: "",
+      course: "",
+      specialization: "",
+      university: "",
+      college: "",
+      passingYear: "",
+      percentage: "",
+      cgpa: "",
+    }
   );
 
   const [errors, setErrors] = useState({});
 
-  const handleChange = (e) => {
+  // ============================================
+  // DROPDOWN STATES
+  // ============================================
+  const [courseOpen, setCourseOpen] = useState(false);
+  const [specializationOpen, setSpecializationOpen] =
+    useState(false);
 
+  const courseRef = useRef(null);
+  const specializationRef = useRef(null);
+
+  // ============================================
+  // COURSE OPTIONS
+  // ============================================
+  const courseOptions = [
+    // -------------------------
+    // GRADUATION
+    // -------------------------
+    "B.Tech",
+    "B.E",
+    "BCA",
+    "B.Sc",
+    "B.Com",
+    "BBA",
+    "BA",
+    "B.Des",
+    "B.Pharm",
+    "B.Ed",
+    "LLB",
+    "MBBS",
+    "BDS",
+    "BAMS",
+    "BHMS",
+
+    // -------------------------
+    // POST GRADUATION
+    // -------------------------
+    "M.Tech",
+    "M.E",
+    "MCA",
+    "M.Sc",
+    "M.Com",
+    "MBA",
+    "MA",
+    "M.Des",
+    "M.Pharm",
+    "M.Ed",
+    "LLM",
+    "MD",
+    "MS",
+
+    // -------------------------
+    // MANAGEMENT
+    // -------------------------
+    "BBM",
+    "PGDM",
+
+    // -------------------------
+    // DIPLOMA
+    // -------------------------
+    "Diploma",
+    "Diploma in Computer Engineering",
+    "Diploma in Mechanical Engineering",
+    "Diploma in Civil Engineering",
+    "Diploma in Electrical Engineering",
+    "Diploma in Electronics Engineering",
+
+    // -------------------------
+    // PHARMACY
+    // -------------------------
+    "D.Pharm",
+
+    // -------------------------
+    // RESEARCH
+    // -------------------------
+    "M.Phil",
+    "PhD",
+
+    // -------------------------
+    // SCHOOL
+    // -------------------------
+    "10th",
+    "12th",
+
+    // -------------------------
+    // OTHER
+    // -------------------------
+    "Other",
+  ];
+
+  // ============================================
+  // SPECIALIZATION OPTIONS
+  // ============================================
+  const specializationOptions = [
+    // -------------------------
+    // COMPUTER / IT
+    // -------------------------
+    "Computer Science",
+    "Information Technology",
+    "Computer Applications",
+    "Software Engineering",
+    "Information Systems",
+    "Computer Engineering",
+
+    // -------------------------
+    // AI / DATA
+    // -------------------------
+    "Artificial Intelligence",
+    "Machine Learning",
+    "Data Science",
+    "Data Analytics",
+    "Big Data",
+
+    // -------------------------
+    // SECURITY
+    // -------------------------
+    "Cyber Security",
+    "Information Security",
+    "Network Security",
+
+    // -------------------------
+    // ENGINEERING
+    // -------------------------
+    "Mechanical Engineering",
+    "Civil Engineering",
+    "Electrical Engineering",
+    "Electronics Engineering",
+    "Electronics & Communication",
+    "Electronics & Instrumentation",
+    "Automobile Engineering",
+    "Chemical Engineering",
+    "Aerospace Engineering",
+    "Industrial Engineering",
+    "Production Engineering",
+
+    // -------------------------
+    // SCIENCE
+    // -------------------------
+    "Physics",
+    "Chemistry",
+    "Mathematics",
+    "Biology",
+    "Biotechnology",
+    "Microbiology",
+    "Environmental Science",
+
+    // -------------------------
+    // COMMERCE
+    // -------------------------
+    "Accounting",
+    "Finance",
+    "Banking",
+    "Commerce",
+    "Taxation",
+
+    // -------------------------
+    // MANAGEMENT
+    // -------------------------
+    "Human Resources",
+    "Marketing",
+    "Finance Management",
+    "Operations Management",
+    "Business Analytics",
+    "International Business",
+    "Supply Chain Management",
+
+    // -------------------------
+    // ARTS
+    // -------------------------
+    "English",
+    "History",
+    "Political Science",
+    "Economics",
+    "Psychology",
+    "Sociology",
+
+    // -------------------------
+    // DESIGN
+    // -------------------------
+    "Graphic Design",
+    "Fashion Design",
+    "Interior Design",
+    "UI/UX Design",
+
+    // -------------------------
+    // MEDICAL
+    // -------------------------
+    "General Medicine",
+    "General Surgery",
+    "Pediatrics",
+    "Dermatology",
+    "Orthopedics",
+    "Cardiology",
+    "Dentistry",
+    "Pharmacy",
+
+    // -------------------------
+    // OTHER
+    // -------------------------
+    "Other",
+  ];
+
+  // ============================================
+  // CLOSE DROPDOWNS WHEN CLICKING OUTSIDE
+  // ============================================
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        courseRef.current &&
+        !courseRef.current.contains(event.target)
+      ) {
+        setCourseOpen(false);
+      }
+
+      if (
+        specializationRef.current &&
+        !specializationRef.current.contains(event.target)
+      ) {
+        setSpecializationOpen(false);
+      }
+    };
+
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+    };
+  }, []);
+
+  // ============================================
+  // HANDLE INPUT CHANGE
+  // ============================================
+  const handleChange = (e) => {
     const { name, value } = e.target;
 
     setEducation((prev) => ({
@@ -25,31 +269,100 @@ const Education = () => {
       [name]: value,
     }));
 
-    // Remove error when user starts correcting the field
+    // Remove error while correcting
     setErrors((prev) => ({
       ...prev,
       [name]: "",
     }));
   };
 
+  // ============================================
+  // SELECT COURSE
+  // ============================================
+  const handleCourseSelect = (course) => {
+    setEducation((prev) => ({
+      ...prev,
+      course,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      course: "",
+    }));
+
+    setCourseOpen(false);
+  };
+
+  // ============================================
+  // SELECT SPECIALIZATION
+  // ============================================
+  const handleSpecializationSelect = (
+    specialization
+  ) => {
+    setEducation((prev) => ({
+      ...prev,
+      specialization,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      specialization: "",
+    }));
+
+    setSpecializationOpen(false);
+  };
+
+  // ============================================
+  // FILTER COURSE OPTIONS
+  // ============================================
+  const filteredCourseOptions =
+    courseOptions.filter((course) =>
+      course
+        .toLowerCase()
+        .includes(
+          (education.course || "")
+            .trim()
+            .toLowerCase()
+        )
+    );
+
+  // ============================================
+  // FILTER SPECIALIZATION OPTIONS
+  // ============================================
+  const filteredSpecializationOptions =
+    specializationOptions.filter(
+      (specialization) =>
+        specialization
+          .toLowerCase()
+          .includes(
+            (education.specialization || "")
+              .trim()
+              .toLowerCase()
+          )
+    );
+
+  // ============================================
+  // VALIDATION
+  // ============================================
   const validateForm = () => {
     const newErrors = {};
 
-    // =========================
+    // ==========================================
     // HIGHEST QUALIFICATION
-    // =========================
+    // ==========================================
     if (!education.highestQualification) {
       newErrors.highestQualification =
         "Please select your highest qualification";
     }
 
-    // =========================
+    // ==========================================
     // COURSE
-    // =========================
+    // ==========================================
     const course = education.course?.trim();
 
     if (!course) {
-      newErrors.course = "Course / Degree is required";
+      newErrors.course =
+        "Course / Degree is required";
     } else if (course.length < 2) {
       newErrors.course =
         "Course / Degree must be at least 2 characters";
@@ -58,9 +371,9 @@ const Education = () => {
         "Course / Degree cannot exceed 100 characters";
     }
 
-    // =========================
+    // ==========================================
     // SPECIALIZATION
-    // =========================
+    // ==========================================
     const specialization =
       education.specialization?.trim();
 
@@ -75,10 +388,11 @@ const Education = () => {
         "Specialization cannot exceed 100 characters";
     }
 
-    // =========================
+    // ==========================================
     // UNIVERSITY
-    // =========================
-    const university = education.university?.trim();
+    // ==========================================
+    const university =
+      education.university?.trim();
 
     if (!university) {
       newErrors.university =
@@ -91,10 +405,11 @@ const Education = () => {
         "University / Board cannot exceed 150 characters";
     }
 
-    // =========================
+    // ==========================================
     // COLLEGE
-    // =========================
-    const college = education.college?.trim();
+    // ==========================================
+    const college =
+      education.college?.trim();
 
     if (!college) {
       newErrors.college =
@@ -107,17 +422,19 @@ const Education = () => {
         "College / Institution cannot exceed 150 characters";
     }
 
-    // =========================
+    // ==========================================
     // PASSING YEAR
-    // =========================
-    const passingYear = education.passingYear;
+    // ==========================================
+    const passingYear =
+      education.passingYear;
 
     if (!passingYear) {
       newErrors.passingYear =
         "Passing year is required";
     } else {
       const year = Number(passingYear);
-      const currentYear = new Date().getFullYear();
+      const currentYear =
+        new Date().getFullYear();
 
       if (!Number.isInteger(year)) {
         newErrors.passingYear =
@@ -131,17 +448,19 @@ const Education = () => {
       }
     }
 
-    // =========================
+    // ==========================================
     // PERCENTAGE
-    // =========================
-    const percentage = education.percentage;
+    // ==========================================
+    const percentage =
+      education.percentage;
 
     if (
       percentage !== "" &&
       percentage !== null &&
       percentage !== undefined
     ) {
-      const percentageValue = Number(percentage);
+      const percentageValue =
+        Number(percentage);
 
       if (isNaN(percentageValue)) {
         newErrors.percentage =
@@ -155,9 +474,9 @@ const Education = () => {
       }
     }
 
-    // =========================
+    // ==========================================
     // CGPA
-    // =========================
+    // ==========================================
     const cgpa = education.cgpa;
 
     if (
@@ -181,13 +500,17 @@ const Education = () => {
 
     setErrors(newErrors);
 
-    return Object.keys(newErrors).length === 0;
+    return (
+      Object.keys(newErrors).length === 0
+    );
   };
 
+  // ============================================
+  // SUBMIT FORM
+  // ============================================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate before API request
     const isValid = validateForm();
 
     if (!isValid) {
@@ -196,8 +519,7 @@ const Education = () => {
 
     try {
       const employeeId =
-        
-    sessionStorage.getItem("employeeId");
+        sessionStorage.getItem("employeeId");
 
       if (!employeeId) {
         alert(
@@ -206,7 +528,9 @@ const Education = () => {
         return;
       }
 
-      // Save Education to MongoDB
+      // ========================================
+      // SAVE EDUCATION TO MONGODB
+      // ========================================
       const response = await API.put(
         `/employees/${employeeId}/education`,
         education
@@ -217,18 +541,27 @@ const Education = () => {
         response.data
       );
 
-      // Update React Context
+      // ========================================
+      // UPDATE REACT CONTEXT
+      // ========================================
       updateSection(
         "education",
         education
       );
 
-      // Mark Education as completed
-      markSectionCompleted("education");
+      // ========================================
+      // MARK SECTION COMPLETED
+      // ========================================
+      markSectionCompleted(
+        "education"
+      );
 
-      // Go to Address
-      navigate("/employee/address");
-
+      // ========================================
+      // GO TO ADDRESS
+      // ========================================
+      navigate(
+        "/employee/address"
+      );
     } catch (error) {
       console.error(
         "STATUS:",
@@ -247,12 +580,15 @@ const Education = () => {
 
       alert(
         error.response?.data?.message ||
-        "Failed to save education details"
+          "Failed to save education details"
       );
     }
   };
 
-   const inputClass =
+  // ============================================
+  // INPUT CLASSES
+  // ============================================
+  const inputClass =
     "w-full min-w-0 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
   const errorInputClass =
@@ -261,29 +597,39 @@ const Education = () => {
   const labelClass =
     "mb-2 block text-sm font-medium text-gray-700";
 
+  // ============================================
+  // RETURN
+  // ============================================
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-gray-50 px-3 py-5 sm:px-4 sm:py-6 md:px-6 md:py-8">
       <div className="mx-auto w-full max-w-5xl">
 
-        {/* Header */}
+        {/* ========================================
+            HEADER
+        ======================================== */}
         <div className="mb-8">
           <h2 className="text-xl font-bold text-gray-800 sm:text-2xl">
             Education
           </h2>
 
           <p className="mt-1 text-sm text-gray-500">
-            Enter your educational qualifications and academic details.
+            Enter your educational qualifications
+            and academic details.
           </p>
         </div>
 
-        {/* Form */}
+        {/* ========================================
+            FORM
+        ======================================== */}
         <form
           onSubmit={handleSubmit}
           className="w-full rounded-xl bg-white p-4 shadow-md sm:p-6"
         >
           <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 md:gap-6">
 
-            {/* Highest Qualification */}
+            {/* ======================================
+                HIGHEST QUALIFICATION
+            ====================================== */}
             <div>
               <label
                 htmlFor="highestQualification"
@@ -295,7 +641,10 @@ const Education = () => {
               <select
                 id="highestQualification"
                 name="highestQualification"
-                value={education.highestQualification}
+                value={
+                  education.highestQualification ||
+                  ""
+                }
                 onChange={handleChange}
                 required
                 className={
@@ -304,24 +653,52 @@ const Education = () => {
                     : inputClass
                 }
               >
-                <option value="">Select Qualification</option>
-                <option value="10th">10th</option>
-                <option value="12th">12th</option>
-                <option value="Diploma">Diploma</option>
-                <option value="Graduation">Graduation</option>
-                <option value="Post Graduation">Post Graduation</option>
-                <option value="PhD">PhD</option>
+                <option value="">
+                  Select Qualification
+                </option>
+
+                <option value="10th">
+                  10th
+                </option>
+
+                <option value="12th">
+                  12th
+                </option>
+
+                <option value="Diploma">
+                  Diploma
+                </option>
+
+                <option value="Graduation">
+                  Graduation
+                </option>
+
+                <option value="Post Graduation">
+                  Post Graduation
+                </option>
+
+                <option value="PhD">
+                  PhD
+                </option>
               </select>
 
               {errors.highestQualification && (
                 <p className="mt-1 text-sm text-red-500">
-                  {errors.highestQualification}
+                  {
+                    errors.highestQualification
+                  }
                 </p>
               )}
             </div>
 
-            {/* Course */}
-            <div>
+
+            {/* ======================================
+                COURSE / DEGREE
+            ====================================== */}
+            <div
+              ref={courseRef}
+              className="relative"
+            >
               <label
                 htmlFor="course"
                 className={labelClass}
@@ -329,32 +706,149 @@ const Education = () => {
                 Course / Degree
               </label>
 
-              <input
-                id="course"
-                type="text"
-                name="course"
-                placeholder="e.g. B.Tech, BCA, MCA"
-                value={education.course}
-                onChange={handleChange}
-                maxLength={100}
-                className={
-                  errors.course
-                    ? errorInputClass
-                    : inputClass
-                }
-              />
+              <div className="relative">
+                <input
+                  id="course"
+                  type="text"
+                  name="course"
+                  placeholder="Select or type course"
+                  value={
+                    education.course || ""
+                  }
+                  onFocus={() => {
+                    setCourseOpen(true);
+                    setSpecializationOpen(
+                      false
+                    );
+                  }}
+                  onChange={(e) => {
+                    handleChange(e);
+                    setCourseOpen(true);
+                  }}
+                  maxLength={100}
+                  autoComplete="off"
+                  className={
+                    errors.course
+                      ? errorInputClass
+                      : inputClass
+                  }
+                />
+
+                {/* Dropdown Arrow */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCourseOpen(
+                      (prev) => !prev
+                    );
+
+                    setSpecializationOpen(
+                      false
+                    );
+                  }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-gray-500 transition hover:bg-gray-100"
+                  aria-label="Toggle course options"
+                >
+                  <svg
+                    className={`h-4 w-4 transition-transform ${
+                      courseOpen
+                        ? "rotate-180"
+                        : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              {/* ====================================
+                  COURSE DROPDOWN
+              ==================================== */}
+              {courseOpen && (
+                <div
+                  className="
+                    absolute
+                    left-0
+                    right-0
+                    z-[100]
+                    mt-1
+                    max-h-60
+                    overflow-y-auto
+                    rounded-lg
+                    border
+                    border-gray-200
+                    bg-white
+                    py-1
+                    shadow-xl
+                  "
+                >
+                  {filteredCourseOptions.length >
+                  0 ? (
+                    filteredCourseOptions.map(
+                      (course) => (
+                        <button
+                          key={course}
+                          type="button"
+                          onClick={() =>
+                            handleCourseSelect(
+                              course
+                            )
+                          }
+                          className={`
+                            block
+                            w-full
+                            px-3
+                            py-1.5
+                            text-left
+                            text-xs
+                            transition
+                            hover:bg-blue-50
+                            ${
+                              education.course ===
+                              course
+                                ? "bg-blue-50 font-semibold text-blue-600"
+                                : "text-gray-700"
+                            }
+                          `}
+                        >
+                          {course}
+                        </button>
+                      )
+                    )
+                  ) : (
+                    <div className="px-3 py-2 text-xs text-gray-500">
+                      No matching course found.
+                      <br />
+                      You can type your own
+                      course.
+                    </div>
+                  )}
+                </div>
+              )}
 
               {errors.course && (
                 <p className="mt-1 text-sm text-red-500">
                   {errors.course}
                 </p>
               )}
-
             </div>
 
-            {/* Specialization */}
-            <div>
 
+            {/* ======================================
+                SPECIALIZATION
+            ====================================== */}
+            <div
+              ref={specializationRef}
+              className="relative"
+            >
               <label
                 htmlFor="specialization"
                 className={labelClass}
@@ -362,32 +856,148 @@ const Education = () => {
                 Specialization
               </label>
 
-              <input
-                id="specialization"
-                type="text"
-                name="specialization"
-                placeholder="e.g. Computer Science"
-                value={education.specialization}
-                onChange={handleChange}
-                maxLength={100}
-                className={
-                  errors.specialization
-                    ? errorInputClass
-                    : inputClass
-                }
-              />
+              <div className="relative">
+                <input
+                  id="specialization"
+                  type="text"
+                  name="specialization"
+                  placeholder="Select or type specialization"
+                  value={
+                    education.specialization ||
+                    ""
+                  }
+                  onFocus={() => {
+                    setSpecializationOpen(
+                      true
+                    );
+                    setCourseOpen(false);
+                  }}
+                  onChange={(e) => {
+                    handleChange(e);
+                    setSpecializationOpen(
+                      true
+                    );
+                  }}
+                  maxLength={100}
+                  autoComplete="off"
+                  className={
+                    errors.specialization
+                      ? errorInputClass
+                      : inputClass
+                  }
+                />
+
+                {/* Dropdown Arrow */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSpecializationOpen(
+                      (prev) => !prev
+                    );
+
+                    setCourseOpen(false);
+                  }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-gray-500 transition hover:bg-gray-100"
+                  aria-label="Toggle specialization options"
+                >
+                  <svg
+                    className={`h-4 w-4 transition-transform ${
+                      specializationOpen
+                        ? "rotate-180"
+                        : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+              </div>
+
+              {/* ====================================
+                  SPECIALIZATION DROPDOWN
+              ==================================== */}
+              {specializationOpen && (
+                <div
+                  className="
+                    absolute
+                    left-0
+                    right-0
+                    z-[100]
+                    mt-1
+                    max-h-60
+                    overflow-y-auto
+                    rounded-lg
+                    border
+                    border-gray-200
+                    bg-white
+                    py-1
+                    shadow-xl
+                  "
+                >
+                  {filteredSpecializationOptions.length >
+                  0 ? (
+                    filteredSpecializationOptions.map(
+                      (specialization) => (
+                        <button
+                          key={specialization}
+                          type="button"
+                          onClick={() =>
+                            handleSpecializationSelect(
+                              specialization
+                            )
+                          }
+                          className={`
+                            block
+                            w-full
+                            px-3
+                            py-1.5
+                            text-left
+                            text-xs
+                            transition
+                            hover:bg-blue-50
+                            ${
+                              education.specialization ===
+                              specialization
+                                ? "bg-blue-50 font-semibold text-blue-600"
+                                : "text-gray-700"
+                            }
+                          `}
+                        >
+                          {specialization}
+                        </button>
+                      )
+                    )
+                  ) : (
+                    <div className="px-3 py-2 text-xs text-gray-500">
+                      No matching specialization
+                      found.
+                      <br />
+                      You can type your own
+                      specialization.
+                    </div>
+                  )}
+                </div>
+              )}
 
               {errors.specialization && (
                 <p className="mt-1 text-sm text-red-500">
                   {errors.specialization}
                 </p>
               )}
-
             </div>
 
-            {/* University */}
-            <div>
 
+            {/* ======================================
+                UNIVERSITY / BOARD
+            ====================================== */}
+            <div>
               <label
                 htmlFor="university"
                 className={labelClass}
@@ -400,7 +1010,9 @@ const Education = () => {
                 type="text"
                 name="university"
                 placeholder="Enter university or board"
-                value={education.university}
+                value={
+                  education.university || ""
+                }
                 onChange={handleChange}
                 maxLength={150}
                 className={
@@ -415,12 +1027,13 @@ const Education = () => {
                   {errors.university}
                 </p>
               )}
-
             </div>
 
-            {/* College */}
-            <div>
 
+            {/* ======================================
+                COLLEGE
+            ====================================== */}
+            <div>
               <label
                 htmlFor="college"
                 className={labelClass}
@@ -433,7 +1046,9 @@ const Education = () => {
                 type="text"
                 name="college"
                 placeholder="Enter college or institution"
-                value={education.college}
+                value={
+                  education.college || ""
+                }
                 onChange={handleChange}
                 maxLength={150}
                 className={
@@ -448,12 +1063,13 @@ const Education = () => {
                   {errors.college}
                 </p>
               )}
-
             </div>
 
-            {/* Passing Year */}
-            <div>
 
+            {/* ======================================
+                PASSING YEAR
+            ====================================== */}
+            <div>
               <label
                 htmlFor="passingYear"
                 className={labelClass}
@@ -468,7 +1084,9 @@ const Education = () => {
                 placeholder="e.g. 2025"
                 min="1950"
                 max={new Date().getFullYear()}
-                value={education.passingYear}
+                value={
+                  education.passingYear || ""
+                }
                 onChange={handleChange}
                 className={
                   errors.passingYear
@@ -482,12 +1100,13 @@ const Education = () => {
                   {errors.passingYear}
                 </p>
               )}
-
             </div>
 
-            {/* Percentage */}
-            <div>
 
+            {/* ======================================
+                PERCENTAGE
+            ====================================== */}
+            <div>
               <label
                 htmlFor="percentage"
                 className={labelClass}
@@ -503,7 +1122,9 @@ const Education = () => {
                 min="0"
                 max="100"
                 step="0.01"
-                value={education.percentage}
+                value={
+                  education.percentage || ""
+                }
                 onChange={handleChange}
                 className={
                   errors.percentage
@@ -517,12 +1138,13 @@ const Education = () => {
                   {errors.percentage}
                 </p>
               )}
-
             </div>
 
-            {/* CGPA */}
-            <div>
 
+            {/* ======================================
+                CGPA
+            ====================================== */}
+            <div>
               <label
                 htmlFor="cgpa"
                 className={labelClass}
@@ -538,7 +1160,7 @@ const Education = () => {
                 min="0"
                 max="10"
                 step="0.01"
-                value={education.cgpa}
+                value={education.cgpa || ""}
                 onChange={handleChange}
                 className={
                   errors.cgpa
@@ -552,19 +1174,23 @@ const Education = () => {
                   {errors.cgpa}
                 </p>
               )}
-
             </div>
 
           </div>
 
-          {/* Buttons */}
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-end border-t border-gray-200 pt-6">
+
+          {/* ========================================
+              BUTTONS
+          ======================================== */}
+          <div className="mt-8 flex flex-col gap-3 border-t border-gray-200 pt-6 sm:flex-row sm:justify-end">
+
             <button
               type="submit"
-              className="w-full rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white sm:w-auto shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="w-full rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:w-auto"
             >
               Save & Next
             </button>
+
           </div>
         </form>
       </div>

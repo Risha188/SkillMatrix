@@ -45,10 +45,11 @@ const VerifyResetCode = () => {
             if (response.data.success) {
 
                 navigate("/reset-password", {
-                    state: {
-                        email: email
-                    }
-                });
+    state: {
+        email: email,
+        resetCode: resetCode
+    }
+});
 
             } else {
 

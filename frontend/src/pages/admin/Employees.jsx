@@ -55,6 +55,18 @@ const Employees = () => {
 
 
     // =====================================================
+    // PAGINATION
+    // =====================================================
+
+    const ITEMS_PER_PAGE = 10;
+
+    const [
+        currentPage,
+        setCurrentPage,
+    ] = useState(1);
+
+
+    // =====================================================
     // GET TOKEN
     // =====================================================
 
@@ -789,6 +801,76 @@ const Employees = () => {
 
 
     // =====================================================
+    // PAGINATION CALCULATIONS
+    // =====================================================
+
+    const totalPages = Math.max(
+        1,
+        Math.ceil(
+            filteredEmployees.length /
+            ITEMS_PER_PAGE
+        )
+    );
+
+    const safeCurrentPage = Math.min(
+        currentPage,
+        totalPages
+    );
+
+    const startIndex =
+        (safeCurrentPage - 1) *
+        ITEMS_PER_PAGE;
+
+    const endIndex = Math.min(
+        startIndex + ITEMS_PER_PAGE,
+        filteredEmployees.length
+    );
+
+    const paginatedEmployees =
+        filteredEmployees.slice(
+            startIndex,
+            endIndex
+        );
+
+    const goToPage = (page) => {
+        const nextPage = Math.min(
+            Math.max(page, 1),
+            totalPages
+        );
+
+        setCurrentPage(nextPage);
+    };
+
+
+    // =====================================================
+    // RESET PAGINATION WHEN SEARCH/FILTER CHANGES
+    // =====================================================
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [
+        search,
+        statusFilter,
+    ]);
+
+
+    // =====================================================
+    // KEEP CURRENT PAGE VALID AFTER DATA CHANGES
+    // =====================================================
+
+    useEffect(() => {
+        if (
+            currentPage > totalPages
+        ) {
+            setCurrentPage(totalPages);
+        }
+    }, [
+        currentPage,
+        totalPages,
+    ]);
+
+
+    // =====================================================
     // CHANGE EMPLOYEE STATUS
     // =====================================================
 
@@ -1071,8 +1153,8 @@ const Employees = () => {
                         showAllEmployees
                     }
                     className={`rounded-xl bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${!statusFilter
-                            ? "ring-2 ring-blue-500"
-                            : ""
+                        ? "ring-2 ring-blue-500"
+                        : ""
                         }`}
                 >
 
@@ -1103,9 +1185,9 @@ const Employees = () => {
                         showActiveEmployees
                     }
                     className={`rounded-xl bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${statusFilter ===
-                            "active"
-                            ? "ring-2 ring-green-500"
-                            : ""
+                        "active"
+                        ? "ring-2 ring-green-500"
+                        : ""
                         }`}
                 >
 
@@ -1136,9 +1218,9 @@ const Employees = () => {
                         showInactiveEmployees
                     }
                     className={`rounded-xl bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${statusFilter ===
-                            "inactive"
-                            ? "ring-2 ring-red-500"
-                            : ""
+                        "inactive"
+                        ? "ring-2 ring-red-500"
+                        : ""
                         }`}
                 >
 
@@ -1339,10 +1421,10 @@ const Employees = () => {
 
                         <tbody>
 
-                            {filteredEmployees.length >
+                            {paginatedEmployees.length >
                                 0 ? (
 
-                                filteredEmployees.map(
+                                paginatedEmployees.map(
                                     (
                                         employee
                                     ) => {
@@ -1565,9 +1647,9 @@ const Employees = () => {
 
                                                     <span
                                                         className={`rounded-full px-3 py-1 text-xs font-semibold ${status ===
-                                                                "Active"
-                                                                ? "bg-green-100 text-green-700"
-                                                                : "bg-red-100 text-red-700"
+                                                            "Active"
+                                                            ? "bg-green-100 text-green-700"
+                                                            : "bg-red-100 text-red-700"
                                                             }`}
                                                     >
 
@@ -1669,8 +1751,91 @@ const Employees = () => {
                     </table>
 
                 </div>
-
             )}
+            {/* =================================================
+                    PAGINATION
+                ================================================= */}
+
+            {filteredEmployees.length > 0 && (
+                <div className="mt-4 flex flex-col gap-4 rounded-xl bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+                    <div className="text-sm text-gray-500">
+                        Showing{" "}
+                        <span className="font-semibold text-gray-700">
+                            {startIndex + 1}
+                        </span>
+                        {" "}to{" "}
+                        <span className="font-semibold text-gray-700">
+                            {endIndex}
+                        </span>
+                        {" "}of{" "}
+                        <span className="font-semibold text-gray-700">
+                            {filteredEmployees.length}
+                        </span>
+                        {" "}
+                        employee
+                        {filteredEmployees.length !== 1
+                            ? "s"
+                            : ""}
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-center gap-1">
+                        <button
+                            type="button"
+                            onClick={() =>
+                                goToPage(
+                                    safeCurrentPage - 1
+                                )
+                            }
+                            disabled={
+                                safeCurrentPage === 1
+                            }
+                            className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            Previous
+                        </button>
+
+                        {Array.from(
+                            {
+                                length: totalPages,
+                            },
+                            (_, index) =>
+                                index + 1
+                        ).map((page) => (
+                            <button
+                                key={page}
+                                type="button"
+                                onClick={() =>
+                                    goToPage(page)
+                                }
+                                className={`min-w-10 rounded-lg px-3 py-2 text-sm font-semibold transition ${safeCurrentPage === page
+                                        ? "bg-blue-600 text-white"
+                                        : "border border-gray-300 text-gray-600 hover:bg-gray-50"
+                                    }`}
+                            >
+                                {page}
+                            </button>
+                        ))}
+
+                        <button
+                            type="button"
+                            onClick={() =>
+                                goToPage(
+                                    safeCurrentPage + 1
+                                )
+                            }
+                            disabled={
+                                safeCurrentPage ===
+                                totalPages
+                            }
+                            className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </div>
+            )}
+
+
 
         </div>
     );

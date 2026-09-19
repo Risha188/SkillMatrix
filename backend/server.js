@@ -55,14 +55,22 @@ const app = express();
 // GLOBAL MIDDLEWARE
 // ==========================================
 
-// ==========================================
-// GLOBAL MIDDLEWARE
-// ==========================================
+// CORS
+app.use(
+    cors({
+        origin:
+            process.env.FRONTEND_URL ||
+            "http://localhost:5173",
+        credentials: true
+    })
+);
 
-app.use(cors());
+// JSON body parser
+app.use(
+    express.json()
+);
 
-app.use(express.json());
-
+// URL encoded body parser
 app.use(
     express.urlencoded({
         extended: true
@@ -84,16 +92,19 @@ app.use((req, res, next) => {
 
     next();
 });
+
 // ==========================================
-// HOME / TEST ROUTE
+// HOME / HEALTH CHECK
 // ==========================================
 
 app.get("/", (req, res) => {
+
     res.status(200).json({
         success: true,
         message:
             "Skill Matrix Backend is running"
     });
+
 });
 
 // ==========================================
@@ -117,14 +128,6 @@ app.use(
 // ==========================================
 // ADMIN PROJECTS
 // ==========================================
-//
-// POST   /api/admin/projects
-// GET    /api/admin/projects
-// GET    /api/admin/projects/:projectId
-// PUT    /api/admin/projects/:projectId
-// DELETE /api/admin/projects/:projectId
-//
-// ==========================================
 
 app.use(
     "/api/admin",
@@ -143,14 +146,6 @@ app.use(
 // ==========================================
 // ADMIN ASSIGNED PROJECTS
 // ==========================================
-//
-// GET /api/admin/assigned-projects
-//
-// GET /api/admin/assigned-projects/:id/team
-//
-// PUT /api/admin/assigned-projects/:id/team
-//
-// ==========================================
 
 app.use(
     "/api/admin/assigned-projects",
@@ -159,12 +154,6 @@ app.use(
 
 // ==========================================
 // OPTIONAL OLD ASSIGNMENT URL
-// ==========================================
-//
-// Keep this temporarily so any old frontend
-// code using /api/admin/assignments continues
-// to work.
-//
 // ==========================================
 
 app.use(
@@ -190,6 +179,7 @@ app.get(
     protect,
     adminOnly,
     (req, res) => {
+
         res.status(200).json({
             success: true,
             message:
@@ -197,6 +187,7 @@ app.get(
             user:
                 req.user
         });
+
     }
 );
 
@@ -209,6 +200,7 @@ app.get(
     protect,
     employeeOnly,
     (req, res) => {
+
         res.status(200).json({
             success: true,
             message:
@@ -216,6 +208,7 @@ app.get(
             user:
                 req.user
         });
+
     }
 );
 
@@ -227,6 +220,7 @@ app.get(
     "/api/auth/protected-test",
     protect,
     (req, res) => {
+
         res.status(200).json({
             success: true,
             message:
@@ -234,6 +228,7 @@ app.get(
             user:
                 req.user
         });
+
     }
 );
 
@@ -244,11 +239,13 @@ app.get(
 app.get(
     "/api/auth/test",
     (req, res) => {
+
         res.status(200).json({
             success: true,
             message:
                 "Auth route is working"
         });
+
     }
 );
 
@@ -258,11 +255,13 @@ app.get(
 
 app.use(
     (req, res) => {
+
         res.status(404).json({
             success: false,
             message:
                 `Route not found: ${req.method} ${req.originalUrl}`
         });
+
     }
 );
 
@@ -278,6 +277,7 @@ const PORT =
 // ==========================================
 
 const startServer = async () => {
+
     try {
 
         // ======================================
@@ -310,6 +310,7 @@ const startServer = async () => {
 
         app.listen(
             PORT,
+            "0.0.0.0",
             () => {
 
                 console.log(
@@ -336,6 +337,7 @@ const startServer = async () => {
 
         process.exit(1);
     }
+
 };
 
 // ==========================================

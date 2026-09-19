@@ -6,7 +6,7 @@ import {
 
 import { loginUser } from "../../service/authService";
 import { useAdmin } from "../../context/AdminContext.jsx";
-
+import { Eye, EyeOff } from "lucide-react";
 
 const AdminLogin = () => {
 
@@ -998,29 +998,27 @@ const AdminLogin = () => {
                                     />
 
 
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            setShowPassword(
-                                                (prev) =>
-                                                    !prev
-                                            )
-                                        }
-                                        className="
-                                            absolute
-                                            right-3
-                                            top-1/2
-                                            -translate-y-1/2
-                                            text-lg
-                                            text-slate-500
-                                            hover:text-blue-600
-                                        "
-                                        tabIndex={-1}
-                                    >
-                                        {showPassword
-                                            ? "🙈"
-                                            : "👁"}
-                                    </button>
+                                  <button
+    type="button"
+    onClick={() => setShowPassword((prev) => !prev)}
+    className="
+        absolute
+        right-3
+        top-1/2
+        -translate-y-1/2
+        text-slate-500
+        hover:text-blue-600
+        transition-colors
+    "
+    tabIndex={-1}
+    aria-label={showPassword ? "Hide password" : "Show password"}
+>
+    {showPassword ? (
+        <EyeOff size={20} strokeWidth={2} />
+    ) : (
+        <Eye size={20} strokeWidth={2} />
+    )}
+</button>
 
                                 </div>
 

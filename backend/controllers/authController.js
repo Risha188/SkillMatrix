@@ -26,6 +26,32 @@ const generateVerificationCode = () => {
     ).toString();
 };
 
+
+// ======================================================
+// GENERATE UNIQUE EMPLOYEE ID
+// Format: EMP + exactly 6 digits
+// Example: EMP123456
+// ======================================================
+
+const generateUniqueEmployeeId = async () => {
+    let employeeId;
+    let exists = true;
+
+    while (exists) {
+        const randomNumber = Math.floor(
+            100000 + Math.random() * 900000
+        );
+
+        employeeId = `EMP${randomNumber}`;
+
+        exists = await Employee.exists({
+            employeeId
+        });
+    }
+
+    return employeeId;
+};
+
 // ======================================================
 // SEND ADMIN VERIFICATION EMAIL
 // ======================================================
@@ -934,6 +960,34 @@ const loginUser = async (req, res) => {
                     employee.employeeId
                 );
 
+                // ------------------------------------------------
+                // REPAIR OLD / INVALID EMPLOYEE ID
+                // ------------------------------------------------
+                // Required format: EMP + exactly 6 digits.
+                // Examples:
+                //   EMP123456  -> valid
+                //   EMP0004    -> replaced
+                //   EMP1788504820089 -> replaced
+                const validEmployeeId =
+                    /^EMP\d{6}$/.test(
+                        String(employee.employeeId || "")
+                    );
+
+                if (!validEmployeeId) {
+                    const oldEmployeeId =
+                        employee.employeeId;
+
+                    employee.employeeId =
+                        await generateUniqueEmployeeId();
+
+                    console.log(
+                        "🔧 Employee ID repaired:",
+                        oldEmployeeId,
+                        "->",
+                        employee.employeeId
+                    );
+                }
+
 
                 // ------------------------------------------------
                 // LINK OLD EMPLOYEE TO USER
@@ -952,7 +1006,8 @@ const loginUser = async (req, res) => {
                         {
                             $set: {
                                 userId: user._id,
-                                email: cleanEmail
+                                email: cleanEmail,
+                                employeeId: employee.employeeId
                             }
                         }
                     );
@@ -965,6 +1020,10 @@ const loginUser = async (req, res) => {
                     console.log(
                         "✅ Employee linked successfully."
                     );
+                } else if (employee.isModified("employeeId")) {
+                    // Save a repaired employee ID even when the
+                    // employee was already linked to this user.
+                    await employee.save();
                 }
             }
 
@@ -986,7 +1045,7 @@ const loginUser = async (req, res) => {
 
                 // Generate a SAFE unique employee ID
                 const employeeId =
-                    `EMP${Date.now()}`;
+                    await generateUniqueEmployeeId();
 
 
                 // Get name

@@ -246,13 +246,22 @@ const PersonalInformation = () => {
                 response.data
             );
 
+            // Backend is the source of truth for employeeId.
+            // This also handles old IDs such as EMP0001 being replaced
+            // by the backend with a new unique EMP###### ID.
             const savedEmployeeId =
-                response.data?.employee?.employeeId;
+                response.data?.employee?.employeeId ||
+                response.data?.employeeId ||
+                "";
 
             if (savedEmployeeId) {
                 sessionStorage.setItem(
                     "employeeId",
-                    savedEmployeeId
+                    String(savedEmployeeId)
+                );
+                sessionStorage.setItem(
+                    "employeeUserId",
+                    String(savedEmployeeId)
                 );
             }
 
