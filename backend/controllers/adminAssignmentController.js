@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const Project = require("../model/Project");
+const Project = require("../model/project");
 const ProjectAssignment = require("../model/ProjectAssignment");
 const Employee = require("../model/Employee");
 const User = require("../model/User");
