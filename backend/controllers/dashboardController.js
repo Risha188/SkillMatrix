@@ -1,5 +1,5 @@
 const User = require("../model/User");
-const Project = require("../model/Project");
+const Project = require("../model/project");
 const ProjectAssignment = require("../model/ProjectAssignment");
 const Employee = require("../model/Employee");
 
