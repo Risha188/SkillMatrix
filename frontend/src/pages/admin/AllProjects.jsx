@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const API_URL = "http://localhost:5000/api/admin";
+const API_URL = "https://skillmatrix-backend.onrender.com/api/admin";
 
 const AllProjects = () => {
     const navigate = useNavigate();
@@ -358,7 +358,7 @@ const getToken = () => {
             // IMPORTANT:
             // Use the complete URL here.
             // This prevents /admin/admin/projects.
-            const PROJECT_CREATE_URL = "http://localhost:5000/api/admin/projects";
+            const PROJECT_CREATE_URL = "https://skillmatrix-backend.onrender.com/api/admin/projects";
 
             console.log("=================================");
             console.log("CREATE PROJECT URL:", PROJECT_CREATE_URL);

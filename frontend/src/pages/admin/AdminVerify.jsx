@@ -29,8 +29,8 @@ const AdminVerify = () => {
             return;
         }
 
-        const response = await axios.post(
-            "http://localhost:5000/api/admin/verify",
+        const response = await API.post(
+            "https://skillmatrix-backend.onrender.com/api/admin/verify",
             {
                 email: email,
                 verificationCode: verificationCode

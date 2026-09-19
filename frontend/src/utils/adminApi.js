@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const ADMIN_API = axios.create({
-    baseURL: "http://localhost:5000/api",
+    baseURL: "https://skillmatrix-backend.onrender.com/api",
 
     headers: {
         "Content-Type": "application/json",

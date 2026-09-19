@@ -9,13 +9,12 @@ import {
     useSearchParams,
 } from "react-router-dom";
 
-
 // =========================================================
 // API
 // =========================================================
 
-const API_BASE_URL =
-    "http://localhost:5000/api";
+const API_URL =
+    "https://skillmatrix-backend.onrender.com/api/admin";
 
 
 // =========================================================
@@ -67,103 +66,74 @@ const Employees = () => {
 
 
     // =====================================================
-    // GET TOKEN
+    // GET ADMIN TOKEN
     // =====================================================
 
     const getToken = () => {
-        // =====================================================
-        // ADMIN TOKEN
-        // =====================================================
 
         const adminToken =
-            sessionStorage.getItem("adminToken");
+            sessionStorage.getItem(
+                "adminToken"
+            );
 
         if (adminToken) {
+
             console.log(
-                "✅ ADMIN TOKEN FOUND:",
-                "sessionStorage.adminToken"
+                "✅ ADMIN TOKEN FOUND: sessionStorage.adminToken"
             );
 
             return adminToken;
         }
 
-        // =====================================================
-        // FALLBACK TOKENS
-        // =====================================================
 
-        const sessionToken =
-            sessionStorage.getItem("token");
-
-        if (sessionToken) {
-            console.log(
-                "✅ TOKEN FOUND:",
-                "sessionStorage.token"
+        // Fallback
+        const token =
+            sessionStorage.getItem(
+                "token"
             );
 
-            return sessionToken;
+        if (token) {
+
+            console.log(
+                "✅ TOKEN FOUND: sessionStorage.token"
+            );
+
+            return token;
         }
 
+
         const localAdminToken =
-            localStorage.getItem("adminToken");
+            localStorage.getItem(
+                "adminToken"
+            );
 
         if (localAdminToken) {
+
             console.log(
-                "✅ ADMIN TOKEN FOUND:",
-                "localStorage.adminToken"
+                "✅ ADMIN TOKEN FOUND: localStorage.adminToken"
             );
 
             return localAdminToken;
         }
 
+
         const localToken =
-            localStorage.getItem("token");
+            localStorage.getItem(
+                "token"
+            );
 
         if (localToken) {
+
             console.log(
-                "✅ TOKEN FOUND:",
-                "localStorage.token"
+                "✅ TOKEN FOUND: localStorage.token"
             );
 
             return localToken;
         }
 
-        const authToken =
-            localStorage.getItem("authToken");
-
-        if (authToken) {
-            console.log(
-                "✅ AUTH TOKEN FOUND"
-            );
-
-            return authToken;
-        }
-
-        const accessToken =
-            localStorage.getItem("accessToken");
-
-        if (accessToken) {
-            console.log(
-                "✅ ACCESS TOKEN FOUND"
-            );
-
-            return accessToken;
-        }
-
-        const skillMatrixToken =
-            localStorage.getItem(
-                "skillmatrix_token"
-            );
-
-        if (skillMatrixToken) {
-            console.log(
-                "✅ SKILLMATRIX TOKEN FOUND"
-            );
-
-            return skillMatrixToken;
-        }
 
         console.error(
-            "❌ ADMIN TOKEN NOT FOUND ANYWHERE"
+            "❌ ADMIN TOKEN NOT FOUND"
         );
 
         return null;
@@ -181,8 +151,10 @@ const Employees = () => {
             setLoading(true);
             setError("");
 
+
             const token =
                 getToken();
+
 
             if (!token) {
 
@@ -192,9 +164,19 @@ const Employees = () => {
             }
 
 
+            // IMPORTANT:
+            // API_URL already contains:
+            // /api/admin
+            //
+            // Therefore:
+            // /employees
+            //
+            // Final URL:
+            // https://skillmatrix-backend.onrender.com/api/admin/employees
+
             const response =
                 await fetch(
-                    `${API_BASE_URL}/admin/employees`,
+                    `${API_URL}/employees`,
                     {
                         method: "GET",
 
@@ -235,35 +217,56 @@ const Employees = () => {
             }
 
 
-            // Backend may return:
+            // Backend can return:
             //
             // {
             //     success: true,
             //     employees: []
             // }
 
-            const employees =
+            let employees = [];
+
+
+            if (
                 Array.isArray(
                     data.employees
                 )
-                    ? data.employees
-                    : Array.isArray(
-                        data.data
-                    )
-                        ? data.data
-                        : Array.isArray(data)
-                            ? data
-                            : [];
+            ) {
+
+                employees =
+                    data.employees;
+
+            } else if (
+                Array.isArray(
+                    data.data
+                )
+            ) {
+
+                employees =
+                    data.data;
+
+            } else if (
+                Array.isArray(data)
+            ) {
+
+                employees = data;
+            }
 
 
             setEmployeeList(
                 employees
             );
 
+
+            console.log(
+                "✅ Employees loaded:",
+                employees.length
+            );
+
         } catch (err) {
 
             console.error(
-                "Employee loading error:",
+                "❌ Employee loading error:",
                 err
             );
 
@@ -295,11 +298,13 @@ const Employees = () => {
     // =====================================================
 
     const statusFilter =
-        searchParams.get("status");
+        searchParams.get(
+            "status"
+        );
 
 
     // =====================================================
-    // NORMALIZE EMPLOYEE STATUS
+    // EMPLOYEE STATUS
     // =====================================================
 
     const getEmployeeStatus = (
@@ -323,8 +328,10 @@ const Employees = () => {
 
 
         if (
-            employee.status === "active" ||
-            employee.status === "Active"
+            employee.status ===
+                "active" ||
+            employee.status ===
+                "Active"
         ) {
 
             return "Active";
@@ -332,8 +339,10 @@ const Employees = () => {
 
 
         if (
-            employee.status === "inactive" ||
-            employee.status === "Inactive"
+            employee.status ===
+                "inactive" ||
+            employee.status ===
+                "Inactive"
         ) {
 
             return "Inactive";
@@ -342,9 +351,9 @@ const Employees = () => {
 
         if (
             employee.presentStatus ===
-            "active" ||
+                "active" ||
             employee.presentStatus ===
-            "Active"
+                "Active"
         ) {
 
             return "Active";
@@ -353,9 +362,9 @@ const Employees = () => {
 
         if (
             employee.presentStatus ===
-            "inactive" ||
+                "inactive" ||
             employee.presentStatus ===
-            "Inactive"
+                "Inactive"
         ) {
 
             return "Inactive";
@@ -386,6 +395,7 @@ const Employees = () => {
             employee.lastName ||
             "";
 
+
         const fullName =
             `${firstName} ${lastName}`
                 .trim();
@@ -410,7 +420,7 @@ const Employees = () => {
         if (
             employee.email &&
             typeof employee.email ===
-            "string"
+                "string"
         ) {
 
             return employee.email;
@@ -430,7 +440,7 @@ const Employees = () => {
         if (
             employee.userId &&
             typeof employee.userId ===
-            "object" &&
+                "object" &&
             employee.userId.email
         ) {
 
@@ -453,6 +463,7 @@ const Employees = () => {
         return String(
             employee.employeeId ||
             employee.id ||
+            employee._id ||
             ""
         );
     };
@@ -466,25 +477,19 @@ const Employees = () => {
         skill
     ) => {
 
-        // ---------------------------------------------
-        // String
-        // ---------------------------------------------
-
         if (
-            typeof skill === "string"
+            typeof skill ===
+            "string"
         ) {
 
             return skill;
         }
 
 
-        // ---------------------------------------------
-        // Object
-        // ---------------------------------------------
-
         if (
             skill &&
-            typeof skill === "object"
+            typeof skill ===
+                "object"
         ) {
 
             return String(
@@ -516,10 +521,6 @@ const Employees = () => {
         let skills = [];
 
 
-        // ---------------------------------------------
-        // Direct primarySkills
-        // ---------------------------------------------
-
         if (
             Array.isArray(
                 employee.primarySkills
@@ -529,13 +530,7 @@ const Employees = () => {
             skills =
                 employee.primarySkills;
 
-        }
-
-        // ---------------------------------------------
-        // skills.primary
-        // ---------------------------------------------
-
-        else if (
+        } else if (
             Array.isArray(
                 employee.skills?.primary
             )
@@ -544,13 +539,7 @@ const Employees = () => {
             skills =
                 employee.skills.primary;
 
-        }
-
-        // ---------------------------------------------
-        // skills array
-        // ---------------------------------------------
-
-        else if (
+        } else if (
             Array.isArray(
                 employee.skills
             )
@@ -595,10 +584,6 @@ const Employees = () => {
         let skills = [];
 
 
-        // ---------------------------------------------
-        // Direct secondarySkills
-        // ---------------------------------------------
-
         if (
             Array.isArray(
                 employee.secondarySkills
@@ -608,13 +593,7 @@ const Employees = () => {
             skills =
                 employee.secondarySkills;
 
-        }
-
-        // ---------------------------------------------
-        // skills.secondary
-        // ---------------------------------------------
-
-        else if (
+        } else if (
             Array.isArray(
                 employee.skills?.secondary
             )
@@ -623,13 +602,7 @@ const Employees = () => {
             skills =
                 employee.skills.secondary;
 
-        }
-
-        // ---------------------------------------------
-        // skills array
-        // ---------------------------------------------
-
-        else if (
+        } else if (
             Array.isArray(
                 employee.skills
             )
@@ -664,7 +637,7 @@ const Employees = () => {
 
 
     // =====================================================
-    // EMPLOYEE COUNTS
+    // COUNTS
     // =====================================================
 
     const totalEmployees =
@@ -722,35 +695,35 @@ const Employees = () => {
                             employee
                         );
 
-                    // ---------------------------------------------
-                    // PRIMARY SKILLS SEARCH
-                    // ---------------------------------------------
-                    // Allows the admin to search employees by any
-                    // primary skill, for example:
-                    // React, Java, Python, MongoDB, Salesforce, etc.
-                    // ---------------------------------------------
+
                     const primarySkills =
                         getPrimarySkills(
                             employee
                         );
 
-                    // Normalize primary skills before searching.
-                    // This handles values such as:
-                    // "MERN", "MERN Stack", "MERN Stack Developer",
-                    // and skill objects such as { skillName: "MERN" }.
-                    const normalizedPrimarySkills =
-                        primarySkills.map((skill) =>
-                            String(skill || "")
-                                .trim()
-                                .toLowerCase()
+
+                    const normalizedSkills =
+                        primarySkills.map(
+                            (skill) =>
+                                String(
+                                    skill || ""
+                                )
+                                    .trim()
+                                    .toLowerCase()
                         );
 
-                    const matchesPrimarySkill =
-                        normalizedPrimarySkills.some(
+
+                    const matchesSkill =
+                        normalizedSkills.some(
                             (skill) =>
-                                skill.includes(searchValue) ||
-                                searchValue.includes(skill)
+                                skill.includes(
+                                    searchValue
+                                ) ||
+                                searchValue.includes(
+                                    skill
+                                )
                         );
+
 
                     const matchesSearch =
                         !searchValue ||
@@ -769,10 +742,10 @@ const Employees = () => {
                             .includes(
                                 searchValue
                             ) ||
-                        matchesPrimarySkill;
+                        matchesSkill;
 
 
-                    const employeeStatus =
+                    const status =
                         getEmployeeStatus(
                             employee
                         );
@@ -780,10 +753,10 @@ const Employees = () => {
 
                     const matchesStatus =
                         !statusFilter ||
-                        employeeStatus
+                        status
                             .toLowerCase() ===
-                        statusFilter
-                            .toLowerCase();
+                            statusFilter
+                                .toLowerCase();
 
 
                     return (
@@ -801,30 +774,38 @@ const Employees = () => {
 
 
     // =====================================================
-    // PAGINATION CALCULATIONS
+    // PAGINATION
     // =====================================================
 
-    const totalPages = Math.max(
-        1,
-        Math.ceil(
-            filteredEmployees.length /
-            ITEMS_PER_PAGE
-        )
-    );
+    const totalPages =
+        Math.max(
+            1,
+            Math.ceil(
+                filteredEmployees.length /
+                ITEMS_PER_PAGE
+            )
+        );
 
-    const safeCurrentPage = Math.min(
-        currentPage,
-        totalPages
-    );
+
+    const safeCurrentPage =
+        Math.min(
+            currentPage,
+            totalPages
+        );
+
 
     const startIndex =
         (safeCurrentPage - 1) *
         ITEMS_PER_PAGE;
 
-    const endIndex = Math.min(
-        startIndex + ITEMS_PER_PAGE,
-        filteredEmployees.length
-    );
+
+    const endIndex =
+        Math.min(
+            startIndex +
+                ITEMS_PER_PAGE,
+            filteredEmployees.length
+        );
+
 
     const paginatedEmployees =
         filteredEmployees.slice(
@@ -832,22 +813,35 @@ const Employees = () => {
             endIndex
         );
 
-    const goToPage = (page) => {
-        const nextPage = Math.min(
-            Math.max(page, 1),
-            totalPages
-        );
 
-        setCurrentPage(nextPage);
+    const goToPage = (
+        page
+    ) => {
+
+        const nextPage =
+            Math.min(
+                Math.max(
+                    page,
+                    1
+                ),
+                totalPages
+            );
+
+
+        setCurrentPage(
+            nextPage
+        );
     };
 
 
     // =====================================================
-    // RESET PAGINATION WHEN SEARCH/FILTER CHANGES
+    // RESET PAGE
     // =====================================================
 
     useEffect(() => {
+
         setCurrentPage(1);
+
     }, [
         search,
         statusFilter,
@@ -855,15 +849,21 @@ const Employees = () => {
 
 
     // =====================================================
-    // KEEP CURRENT PAGE VALID AFTER DATA CHANGES
+    // KEEP PAGE VALID
     // =====================================================
 
     useEffect(() => {
+
         if (
-            currentPage > totalPages
+            currentPage >
+            totalPages
         ) {
-            setCurrentPage(totalPages);
+
+            setCurrentPage(
+                totalPages
+            );
         }
+
     }, [
         currentPage,
         totalPages,
@@ -874,193 +874,181 @@ const Employees = () => {
     // CHANGE EMPLOYEE STATUS
     // =====================================================
 
-    const handleStatusChange = async (
-        employeeId,
-        newStatus
-    ) => {
+    const handleStatusChange =
+        async (
+            employeeId,
+            newStatus
+        ) => {
 
-        try {
+            try {
 
-            setUpdatingEmployeeId(
-                employeeId
-            );
-
-            setError("");
-
-
-            const token =
-                getToken();
-
-
-            if (!token) {
-
-                throw new Error(
-                    "Authentication token not found. Please login again."
-                );
-            }
-
-
-            // Backend expects:
-            //
-            // {
-            //     isActive: true
-            // }
-            //
-            // or
-            //
-            // {
-            //     isActive: false
-            // }
-
-            const isActive =
-                newStatus === "Active";
-
-
-            const response =
-                await fetch(
-                    `${API_BASE_URL}/admin/employees/${employeeId}/status`,
-                    {
-                        method: "PATCH",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json",
-
-                            Authorization:
-                                `Bearer ${token}`,
-                        },
-
-                        body:
-                            JSON.stringify({
-                                isActive,
-                            }),
-                    }
+                setUpdatingEmployeeId(
+                    employeeId
                 );
 
-
-            const data =
-                await response.json();
+                setError("");
 
 
-            if (!response.ok) {
-
-                throw new Error(
-                    data.message ||
-                    data.error ||
-                    "Failed to update employee status"
-                );
-            }
+                const token =
+                    getToken();
 
 
-            if (
-                data.success === false
-            ) {
+                if (!token) {
 
-                throw new Error(
-                    data.message ||
-                    data.error ||
-                    "Failed to update employee status"
-                );
-            }
+                    throw new Error(
+                        "Authentication token not found. Please login again."
+                    );
+                }
 
 
-            // =================================================
-            // UPDATE UI IMMEDIATELY
-            // =================================================
-
-            setEmployeeList(
-                (
-                    currentEmployees
-                ) =>
-                    currentEmployees.map(
-                        (
-                            employee
-                        ) => {
-
-                            if (
-                                String(
-                                    getEmployeeId(
-                                        employee
-                                    )
-                                ) !==
-                                String(
-                                    employeeId
-                                )
-                            ) {
-
-                                return employee;
-                            }
+                const isActive =
+                    newStatus ===
+                    "Active";
 
 
-                            return {
-                                ...employee,
+                const response =
+                    await fetch(
+                        `${API_URL}/employees/${employeeId}/status`,
+                        {
+                            method: "PATCH",
 
-                                isActive:
+                            headers: {
+                                "Content-Type":
+                                    "application/json",
+
+                                Authorization:
+                                    `Bearer ${token}`,
+                            },
+
+                            body:
+                                JSON.stringify({
                                     isActive,
-
-                                status:
-                                    newStatus.toLowerCase(),
-
-                                presentStatus:
-                                    newStatus,
-                            };
+                                }),
                         }
-                    )
-            );
+                    );
 
-        } catch (err) {
 
-            console.error(
-                "Status update error:",
-                err
-            );
+                const data =
+                    await response.json();
 
-            setError(
-                err.message ||
-                "Failed to update employee status"
-            );
 
-        } finally {
+                if (!response.ok) {
 
-            setUpdatingEmployeeId(
-                null
-            );
-        }
-    };
+                    throw new Error(
+                        data.message ||
+                        data.error ||
+                        "Failed to update employee status"
+                    );
+                }
+
+
+                if (
+                    data.success ===
+                    false
+                ) {
+
+                    throw new Error(
+                        data.message ||
+                        data.error ||
+                        "Failed to update employee status"
+                    );
+                }
+
+
+                // Update UI
+                setEmployeeList(
+                    (
+                        currentEmployees
+                    ) =>
+                        currentEmployees.map(
+                            (
+                                employee
+                            ) => {
+
+                                if (
+                                    String(
+                                        getEmployeeId(
+                                            employee
+                                        )
+                                    ) !==
+                                    String(
+                                        employeeId
+                                    )
+                                ) {
+
+                                    return employee;
+                                }
+
+
+                                return {
+                                    ...employee,
+
+                                    isActive:
+                                        isActive,
+
+                                    status:
+                                        newStatus.toLowerCase(),
+
+                                    presentStatus:
+                                        newStatus,
+                                };
+                            }
+                        )
+                );
+
+
+                console.log(
+                    "✅ Employee status updated"
+                );
+
+            } catch (err) {
+
+                console.error(
+                    "❌ Status update error:",
+                    err
+                );
+
+                setError(
+                    err.message ||
+                    "Failed to update employee status"
+                );
+
+            } finally {
+
+                setUpdatingEmployeeId(
+                    null
+                );
+            }
+        };
 
 
     // =====================================================
-    // SHOW ALL
+    // FILTER BUTTONS
     // =====================================================
 
-    const showAllEmployees = () => {
+    const showAllEmployees =
+        () => {
 
-        setSearchParams({});
-    };
-
-
-    // =====================================================
-    // SHOW ACTIVE
-    // =====================================================
-
-    const showActiveEmployees = () => {
-
-        setSearchParams({
-            status: "active",
-        });
-    };
+            setSearchParams({});
+        };
 
 
-    // =====================================================
-    // SHOW INACTIVE
-    // =====================================================
+    const showActiveEmployees =
+        () => {
 
-    const showInactiveEmployees = () => {
+            setSearchParams({
+                status: "active",
+            });
+        };
 
-        setSearchParams({
-            status: "inactive",
-        });
-    };
+
+    const showInactiveEmployees =
+        () => {
+
+            setSearchParams({
+                status: "inactive",
+            });
+        };
 
 
     // =====================================================
@@ -1134,7 +1122,6 @@ const Employees = () => {
                     </button>
 
                 </div>
-
             )}
 
 
@@ -1152,10 +1139,11 @@ const Employees = () => {
                     onClick={
                         showAllEmployees
                     }
-                    className={`rounded-xl bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${!statusFilter
-                        ? "ring-2 ring-blue-500"
-                        : ""
-                        }`}
+                    className={`rounded-xl bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${
+                        !statusFilter
+                            ? "ring-2 ring-blue-500"
+                            : ""
+                    }`}
                 >
 
                     <p className="text-sm font-medium text-gray-500">
@@ -1184,11 +1172,12 @@ const Employees = () => {
                     onClick={
                         showActiveEmployees
                     }
-                    className={`rounded-xl bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${statusFilter ===
+                    className={`rounded-xl bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${
+                        statusFilter ===
                         "active"
-                        ? "ring-2 ring-green-500"
-                        : ""
-                        }`}
+                            ? "ring-2 ring-green-500"
+                            : ""
+                    }`}
                 >
 
                     <p className="text-sm font-medium text-gray-500">
@@ -1217,11 +1206,12 @@ const Employees = () => {
                     onClick={
                         showInactiveEmployees
                     }
-                    className={`rounded-xl bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${statusFilter ===
+                    className={`rounded-xl bg-white p-5 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${
+                        statusFilter ===
                         "inactive"
-                        ? "ring-2 ring-red-500"
-                        : ""
-                        }`}
+                            ? "ring-2 ring-red-500"
+                            : ""
+                    }`}
                 >
 
                     <p className="text-sm font-medium text-gray-500">
@@ -1260,7 +1250,7 @@ const Employees = () => {
                             Showing{" "}
 
                             {statusFilter ===
-                                "active"
+                            "active"
                                 ? "active"
                                 : "inactive"}
 
@@ -1277,14 +1267,12 @@ const Employees = () => {
                             }{" "}
 
                             employee
-
                             {filteredEmployees.length !==
-                                1
+                            1
                                 ? "s"
                                 : ""}
 
-                            {" "}
-                            found
+                            {" "}found
 
                         </p>
 
@@ -1302,7 +1290,6 @@ const Employees = () => {
                     </button>
 
                 </div>
-
             )}
 
 
@@ -1338,17 +1325,14 @@ const Employees = () => {
                         }{" "}
 
                         employee
-
                         {filteredEmployees.length !==
-                            1
+                        1
                             ? "s"
                             : ""}
 
-                        {" "}
-                        found
+                        {" "}found
 
                     </p>
-
                 )}
 
             </div>
@@ -1373,10 +1357,6 @@ const Employees = () => {
                 </div>
 
             ) : (
-
-                /* =================================================
-                   EMPLOYEE TABLE
-                ================================================= */
 
                 <div className="overflow-x-auto rounded-xl bg-white shadow-sm">
 
@@ -1422,7 +1402,7 @@ const Employees = () => {
                         <tbody>
 
                             {paginatedEmployees.length >
-                                0 ? (
+                            0 ? (
 
                                 paginatedEmployees.map(
                                     (
@@ -1434,36 +1414,30 @@ const Employees = () => {
                                                 employee
                                             );
 
-
                                         const name =
                                             getEmployeeName(
                                                 employee
                                             );
-
 
                                         const email =
                                             getEmployeeEmail(
                                                 employee
                                             );
 
-
                                         const status =
                                             getEmployeeStatus(
                                                 employee
                                             );
-
 
                                         const primarySkills =
                                             getPrimarySkills(
                                                 employee
                                             );
 
-
                                         const secondarySkills =
                                             getSecondarySkills(
                                                 employee
                                             );
-
 
                                         const isUpdating =
                                             updatingEmployeeId ===
@@ -1479,10 +1453,7 @@ const Employees = () => {
                                                 className="border-t transition hover:bg-gray-50"
                                             >
 
-
-                                                {/* =================================================
-                                                    EMPLOYEE ID
-                                                ================================================= */}
+                                                {/* ID */}
 
                                                 <td className="px-6 py-4">
 
@@ -1490,36 +1461,27 @@ const Employees = () => {
                                                         to={`/admin/employees/${employeeId}`}
                                                         className="font-semibold text-blue-600 hover:underline"
                                                     >
-
                                                         {
-                                                            employeeId
+                                                            employeeId ||
+                                                            "—"
                                                         }
-
                                                     </Link>
 
                                                 </td>
 
 
-                                                {/* =================================================
-                                                    NAME
-                                                ================================================= */}
+                                                {/* NAME */}
 
                                                 <td className="px-6 py-4">
 
                                                     <p className="font-medium text-gray-800">
-
-                                                        {
-                                                            name
-                                                        }
-
+                                                        {name}
                                                     </p>
 
                                                 </td>
 
 
-                                                {/* =================================================
-                                                    EMAIL
-                                                ================================================= */}
+                                                {/* EMAIL */}
 
                                                 <td className="px-6 py-4 text-sm text-gray-600">
 
@@ -1531,16 +1493,14 @@ const Employees = () => {
                                                 </td>
 
 
-                                                {/* =================================================
-                                                    PRIMARY SKILLS
-                                                ================================================= */}
+                                                {/* PRIMARY SKILLS */}
 
                                                 <td className="px-6 py-4">
 
                                                     <div className="flex max-w-xs flex-wrap gap-2">
 
                                                         {primarySkills.length >
-                                                            0 ? (
+                                                        0 ? (
 
                                                             primarySkills.map(
                                                                 (
@@ -1560,15 +1520,11 @@ const Employees = () => {
                                                                             key={`${skillName}-${index}`}
                                                                             className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700"
                                                                         >
-
                                                                             {
                                                                                 skillName
                                                                             }
-
                                                                         </span>
-
                                                                     );
-
                                                                 }
                                                             )
 
@@ -1577,7 +1533,6 @@ const Employees = () => {
                                                             <span className="text-xs text-gray-400">
                                                                 —
                                                             </span>
-
                                                         )}
 
                                                     </div>
@@ -1585,16 +1540,14 @@ const Employees = () => {
                                                 </td>
 
 
-                                                {/* =================================================
-                                                    SECONDARY SKILLS
-                                                ================================================= */}
+                                                {/* SECONDARY SKILLS */}
 
                                                 <td className="px-6 py-4">
 
                                                     <div className="flex max-w-xs flex-wrap gap-2">
 
                                                         {secondarySkills.length >
-                                                            0 ? (
+                                                        0 ? (
 
                                                             secondarySkills.map(
                                                                 (
@@ -1614,15 +1567,11 @@ const Employees = () => {
                                                                             key={`${skillName}-${index}`}
                                                                             className="rounded-full bg-purple-100 px-2.5 py-1 text-xs font-medium text-purple-700"
                                                                         >
-
                                                                             {
                                                                                 skillName
                                                                             }
-
                                                                         </span>
-
                                                                     );
-
                                                                 }
                                                             )
 
@@ -1631,7 +1580,6 @@ const Employees = () => {
                                                             <span className="text-xs text-gray-400">
                                                                 —
                                                             </span>
-
                                                         )}
 
                                                     </div>
@@ -1639,37 +1587,32 @@ const Employees = () => {
                                                 </td>
 
 
-                                                {/* =================================================
-                                                    STATUS
-                                                ================================================= */}
+                                                {/* STATUS */}
 
                                                 <td className="px-6 py-4">
 
                                                     <span
-                                                        className={`rounded-full px-3 py-1 text-xs font-semibold ${status ===
+                                                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                                                            status ===
                                                             "Active"
-                                                            ? "bg-green-100 text-green-700"
-                                                            : "bg-red-100 text-red-700"
-                                                            }`}
+                                                                ? "bg-green-100 text-green-700"
+                                                                : "bg-red-100 text-red-700"
+                                                        }`}
                                                     >
-
                                                         {
                                                             status
                                                         }
-
                                                     </span>
 
                                                 </td>
 
 
-                                                {/* =================================================
-                                                    ACTION
-                                                ================================================= */}
+                                                {/* ACTION */}
 
                                                 <td className="px-6 py-4">
 
                                                     {status ===
-                                                        "Active" ? (
+                                                    "Active" ? (
 
                                                         <button
                                                             type="button"
@@ -1718,7 +1661,6 @@ const Employees = () => {
                                                 </td>
 
                                             </tr>
-
                                         );
                                     }
                                 )
@@ -1737,13 +1679,12 @@ const Employees = () => {
                                         </p>
 
                                         <p className="mt-1 text-xs text-gray-500">
-                                            Try searching by employee name, ID, email, or primary skill such as MERN, React, Java, or Python.
+                                            Try searching by employee name, ID, email, or primary skill.
                                         </p>
 
                                     </td>
 
                                 </tr>
-
                             )}
 
                         </tbody>
@@ -1752,75 +1693,106 @@ const Employees = () => {
 
                 </div>
             )}
-            {/* =================================================
-                    PAGINATION
-                ================================================= */}
 
-            {filteredEmployees.length > 0 && (
+
+            {/* =================================================
+                PAGINATION
+            ================================================= */}
+
+            {filteredEmployees.length >
+                0 && (
+
                 <div className="mt-4 flex flex-col gap-4 rounded-xl bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+
                     <div className="text-sm text-gray-500">
+
                         Showing{" "}
+
                         <span className="font-semibold text-gray-700">
                             {startIndex + 1}
                         </span>
+
                         {" "}to{" "}
+
                         <span className="font-semibold text-gray-700">
                             {endIndex}
                         </span>
+
                         {" "}of{" "}
+
                         <span className="font-semibold text-gray-700">
-                            {filteredEmployees.length}
+                            {
+                                filteredEmployees.length
+                            }
                         </span>
+
                         {" "}
                         employee
-                        {filteredEmployees.length !== 1
+                        {filteredEmployees.length !==
+                        1
                             ? "s"
                             : ""}
+
                     </div>
 
+
                     <div className="flex flex-wrap items-center justify-center gap-1">
+
                         <button
                             type="button"
                             onClick={() =>
                                 goToPage(
-                                    safeCurrentPage - 1
+                                    safeCurrentPage -
+                                        1
                                 )
                             }
                             disabled={
-                                safeCurrentPage === 1
+                                safeCurrentPage ===
+                                1
                             }
                             className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
                         >
                             Previous
                         </button>
 
+
                         {Array.from(
                             {
-                                length: totalPages,
+                                length:
+                                    totalPages,
                             },
                             (_, index) =>
                                 index + 1
-                        ).map((page) => (
-                            <button
-                                key={page}
-                                type="button"
-                                onClick={() =>
-                                    goToPage(page)
-                                }
-                                className={`min-w-10 rounded-lg px-3 py-2 text-sm font-semibold transition ${safeCurrentPage === page
-                                        ? "bg-blue-600 text-white"
-                                        : "border border-gray-300 text-gray-600 hover:bg-gray-50"
+                        ).map(
+                            (page) => (
+
+                                <button
+                                    key={page}
+                                    type="button"
+                                    onClick={() =>
+                                        goToPage(
+                                            page
+                                        )
+                                    }
+                                    className={`min-w-10 rounded-lg px-3 py-2 text-sm font-semibold transition ${
+                                        safeCurrentPage ===
+                                        page
+                                            ? "bg-blue-600 text-white"
+                                            : "border border-gray-300 text-gray-600 hover:bg-gray-50"
                                     }`}
-                            >
-                                {page}
-                            </button>
-                        ))}
+                                >
+                                    {page}
+                                </button>
+                            )
+                        )}
+
 
                         <button
                             type="button"
                             onClick={() =>
                                 goToPage(
-                                    safeCurrentPage + 1
+                                    safeCurrentPage +
+                                        1
                                 )
                             }
                             disabled={
@@ -1831,15 +1803,15 @@ const Employees = () => {
                         >
                             Next
                         </button>
+
                     </div>
+
                 </div>
             )}
-
-
 
         </div>
     );
 };
 
 
-export default Employees;   
+export default Employees;

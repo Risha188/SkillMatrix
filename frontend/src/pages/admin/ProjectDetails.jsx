@@ -14,7 +14,7 @@ import {
 // =========================================================
 
 const API_BASE_URL =
-    "http://localhost:5000/api";
+    "https://skillmatrix-backend.onrender.com/api";
 
 
 // =========================================================

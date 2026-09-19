@@ -55,8 +55,8 @@ const AdminSetPassword = () => {
 
             setLoading(true);
 
-            const response = await axios.post(
-                "http://localhost:5000/api/admin/set-password",
+            const response = await API.post(
+                "https://skillmatrix-backend.onrender.com/api/admin/set-password",
                 {
                     email,
                     password,

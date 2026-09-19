@@ -5,8 +5,7 @@ import { useNavigate } from "react-router-dom";
 // API
 // =========================================================
 
-const API_URL = "http://localhost:5000/api/admin";
-
+const API_URL = "https://skillmatrix-backend.onrender.com/api/admin";
 // =========================================================
 // ASSIGNED PROJECT PAGE
 // =========================================================

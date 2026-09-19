@@ -70,8 +70,8 @@ const AdminRegistration = () => {
             // CALL BACKEND
             // ==========================================
 
-            const response = await axios.post(
-                "http://localhost:5000/api/admin/register",
+            const response = await API.post(
+                "https://skillmatrix-backend.onrender.com/api/admin/register",
                 {
                     fullName: fullName,
                     email: email

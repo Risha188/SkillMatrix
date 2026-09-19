@@ -4,7 +4,7 @@ import {
     useNavigate
 } from "react-router-dom";
 
-const API_URL = "http://localhost:5000/api/admin";
+const API_URL = "https://skillmatrix-backend.onrender.com/api/admin";
 
 const ReassignProject = () => {
     const navigate = useNavigate();

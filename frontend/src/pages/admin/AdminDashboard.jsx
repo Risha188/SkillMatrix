@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-const API_BASE_URL = "http://localhost:5000/api";
+import API from "../../utils/api.js";
+const API_BASE_URL = "https://skillmatrix-backend.onrender.com/api";
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -155,7 +155,7 @@ const AdminDashboard = () => {
                 ) {
                     setError(
                         employeeData.message ||
-                            "Admin access required."
+                        "Admin access required."
                     );
 
                     setLoading(false);
@@ -165,8 +165,8 @@ const AdminDashboard = () => {
 
                 throw new Error(
                     employeeData.message ||
-                        employeeData.error ||
-                        "Failed to load employees."
+                    employeeData.error ||
+                    "Failed to load employees."
                 );
             }
 
@@ -175,7 +175,7 @@ const AdminDashboard = () => {
             ) {
                 throw new Error(
                     employeeData.message ||
-                        "Failed to load employees."
+                    "Failed to load employees."
                 );
             }
 
@@ -271,7 +271,7 @@ const AdminDashboard = () => {
                 ) {
                     setError(
                         projectData.message ||
-                            "Admin access required."
+                        "Admin access required."
                     );
 
                     setLoading(false);
@@ -281,8 +281,8 @@ const AdminDashboard = () => {
 
                 throw new Error(
                     projectData.message ||
-                        projectData.error ||
-                        "Failed to load projects."
+                    projectData.error ||
+                    "Failed to load projects."
                 );
             }
 
@@ -291,7 +291,7 @@ const AdminDashboard = () => {
             ) {
                 throw new Error(
                     projectData.message ||
-                        "Failed to load projects."
+                    "Failed to load projects."
                 );
             }
 
@@ -317,7 +317,7 @@ const AdminDashboard = () => {
 
             setError(
                 err.message ||
-                    "Failed to load dashboard."
+                "Failed to load dashboard."
             );
         } finally {
             setLoading(false);
