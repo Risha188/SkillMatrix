@@ -56,12 +56,30 @@ const app = express();
 // ==========================================
 
 // CORS
+
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",
+    "https://skill-matrix-theta.vercel.app",
+    "https://skill-matrix-gv83tq860-skill-matrix.vercel.app",
+    "https://pcsgpl.skillmatix.com",
+    "https://skillmatrix-pcsi.com"
+];
+
 app.use(
     cors({
-        origin:
-            process.env.FRONTEND_URL ||
-            "http://localhost:5173",
-        credentials: true
+        origin: function (origin, callback) {
+            if (!origin || allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
+
+            console.log("❌ CORS blocked origin:", origin);
+            return callback(new Error("Not allowed by CORS"));
+        },
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization"]
     })
 );
 
